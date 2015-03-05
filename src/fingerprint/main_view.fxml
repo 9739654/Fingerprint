@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+
+<BorderPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fingerprint.Controller">
+	<top>
+		<MenuBar BorderPane.alignment="CENTER">
+			<menus>
+				<Menu mnemonicParsing="false" text="Plik">
+					<items>
+						<MenuItem fx:id="mniFileOpen" mnemonicParsing="false" onAction="#handleFileOpen" text="Otwórz" />
+						<MenuItem fx:id="mniFileExit" mnemonicParsing="false" onAction="#handleFileExit" text="Zakończ" />
+					</items>
+				</Menu>
+			</menus>
+		</MenuBar>
+	</top>
+	<center>
+		<HBox BorderPane.alignment="CENTER">
+			<children>
+				<ScrollPane HBox.hgrow="ALWAYS">
+					<content>
+						<ImageView fx:id="imgLeft" pickOnBounds="true" preserveRatio="true" />
+					</content>
+				</ScrollPane>
+				<ScrollPane HBox.hgrow="ALWAYS">
+					<content>
+						<ImageView fx:id="imgRight" pickOnBounds="true" preserveRatio="true" />
+					</content>
+				</ScrollPane>
+			</children>
+		</HBox>
+	</center>
+	<left>
+		<VBox spacing="6.0" BorderPane.alignment="CENTER">
+			<padding>
+				<Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+			</padding>
+			<children>
+				<Button fx:id="btnFilter1" mnemonicParsing="false" onAction="#handleFilter1" text="Button" />
+				<Button fx:id="btnFilter2" mnemonicParsing="false" onAction="#handleFilter2" text="Button" />
+			</children>
+		</VBox>
+	</left>
+</BorderPane>

@@ -1,4 +1,4 @@
-package sample;
+package fingerprint;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -8,11 +8,14 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
+	public static final int WINDOW_WIDTH = 640;
+	public static final int WINDOW_HEIGHT = 480;
+
     @Override
     public void start(Stage primaryStage) throws Exception{
         Parent root = FXMLLoader.load(getClass().getResource("main_view.fxml"));
         primaryStage.setTitle("Filtry odcisków palca");
-        primaryStage.setScene(new Scene(root, 300, 275));
+        primaryStage.setScene(new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT));
         primaryStage.show();
     }
 
