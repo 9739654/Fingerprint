@@ -20,18 +20,35 @@ public class Controller {
 	Button btnFilter1, btnFilter2;
 	@FXML
 	ImageView imgLeft, imgRight;
+	@FXML
+	Slider filter1Param;
 
 	LazyLoad<FileChooser> fileChooserSupplier = new LazyLoad().withSupplier(() -> new FileChooser());
 	Image originalImage;
+	ImageFilters filters;
+
+	@FXML
+	void initialize() {
+		filters = new ImageFilters();
+	}
 
 	@FXML
 	void handleFilter1(ActionEvent event) {
-
+		Image result = filters
+				.withImage(originalImage)
+				.withThreshold((int) filter1Param.getValue())
+				.binarize()
+				.getResult();
+		imgRight.setImage(result);
 	}
 
 	@FXML
 	void handleFilter2(ActionEvent event) {
-
+		Image result = filters
+				.withImage(originalImage)
+				.horizontalEdges()
+				.getResult();
+		imgRight.setImage(result);
 	}
 
 	@FXML

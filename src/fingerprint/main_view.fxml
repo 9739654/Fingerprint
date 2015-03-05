@@ -24,20 +24,20 @@
 		</MenuBar>
 	</top>
 	<center>
-		<HBox BorderPane.alignment="CENTER">
-			<children>
-				<ScrollPane HBox.hgrow="ALWAYS">
+		<SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0">
+			<items>
+				<ScrollPane>
 					<content>
 						<ImageView fx:id="imgLeft" pickOnBounds="true" preserveRatio="true" />
 					</content>
 				</ScrollPane>
-				<ScrollPane HBox.hgrow="ALWAYS">
+				<ScrollPane>
 					<content>
 						<ImageView fx:id="imgRight" pickOnBounds="true" preserveRatio="true" />
 					</content>
 				</ScrollPane>
-			</children>
-		</HBox>
+			</items>
+		</SplitPane>
 	</center>
 	<left>
 		<VBox spacing="6.0" BorderPane.alignment="CENTER">
@@ -45,8 +45,17 @@
 				<Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
 			</padding>
 			<children>
-				<Button fx:id="btnFilter1" mnemonicParsing="false" onAction="#handleFilter1" text="Button" />
-				<Button fx:id="btnFilter2" mnemonicParsing="false" onAction="#handleFilter2" text="Button" />
+				<HBox spacing="6.0">
+					<children>
+						<Button fx:id="btnFilter1" mnemonicParsing="false" onAction="#handleFilter1" text="Binaryzacja" />
+						<Slider fx:id="filter1Param" blockIncrement="1.0" majorTickUnit="64.0" max="255.0" showTickLabels="true" value="127.0" />
+					</children>
+				</HBox>
+				<HBox>
+					<children>
+						<Button fx:id="btnFilter2" mnemonicParsing="false" onAction="#handleFilter2" text="Krawędzie poziome" />
+					</children>
+				</HBox>
 			</children>
 		</VBox>
 	</left>
