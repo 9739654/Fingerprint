@@ -10,53 +10,61 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 
-<BorderPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fingerprint.Controller">
-	<top>
-		<MenuBar BorderPane.alignment="CENTER">
-			<menus>
-				<Menu mnemonicParsing="false" text="Plik">
-					<items>
-						<MenuItem fx:id="mniFileOpen" mnemonicParsing="false" onAction="#handleFileOpen" text="Otwórz" />
-						<MenuItem fx:id="mniFileExit" mnemonicParsing="false" onAction="#handleFileExit" text="Zakończ" />
-					</items>
-				</Menu>
-			</menus>
-		</MenuBar>
-	</top>
-	<center>
-		<SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0">
-			<items>
-				<ScrollPane>
-					<content>
-						<ImageView fx:id="imgLeft" pickOnBounds="true" preserveRatio="true" />
-					</content>
-				</ScrollPane>
-				<ScrollPane>
-					<content>
-						<ImageView fx:id="imgRight" pickOnBounds="true" preserveRatio="true" />
-					</content>
-				</ScrollPane>
-			</items>
-		</SplitPane>
-	</center>
-	<left>
-		<VBox spacing="6.0" BorderPane.alignment="CENTER">
-			<padding>
-				<Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
-			</padding>
-			<children>
-				<HBox spacing="6.0">
-					<children>
-						<Button fx:id="btnFilter1" mnemonicParsing="false" onAction="#handleFilter1" text="Binaryzacja" />
-						<Slider fx:id="filter1Param" blockIncrement="1.0" majorTickUnit="64.0" max="255.0" showTickLabels="true" value="127.0" />
-					</children>
-				</HBox>
-				<HBox>
-					<children>
-						<Button fx:id="btnFilter2" mnemonicParsing="false" onAction="#handleFilter2" text="Krawędzie poziome" />
-					</children>
-				</HBox>
-			</children>
-		</VBox>
-	</left>
+<BorderPane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="fingerprint.Controller">
+    <top>
+        <MenuBar BorderPane.alignment="CENTER">
+            <menus>
+                <Menu mnemonicParsing="false" text="Plik">
+                    <items>
+                        <MenuItem fx:id="mniFileOpen" mnemonicParsing="false" onAction="#handleFileOpen" text="Otwórz"/>
+                        <MenuItem fx:id="mniFileExit" mnemonicParsing="false" onAction="#handleFileExit"
+                                  text="Zakończ"/>
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+    <center>
+        <SplitPane dividerPositions="0.5" prefHeight="160.0" prefWidth="200.0">
+            <items>
+                <ScrollPane>
+                    <content>
+                        <ImageView fx:id="imgLeft" pickOnBounds="true" preserveRatio="true"/>
+                    </content>
+                </ScrollPane>
+                <ScrollPane>
+                    <content>
+                        <ImageView fx:id="imgRight" pickOnBounds="true" preserveRatio="true"/>
+                    </content>
+                </ScrollPane>
+            </items>
+        </SplitPane>
+    </center>
+    <left>
+        <VBox spacing="6.0" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="6.0" left="6.0" right="6.0" top="6.0"/>
+            </padding>
+            <children>
+                <HBox spacing="6.0">
+                    <children>
+                        <Slider fx:id="binarizeParam" blockIncrement="1.0" majorTickUnit="64.0" max="255.0"
+                                showTickLabels="true" value="127.0"/>
+                        <Button fx:id="btnFilter1" mnemonicParsing="false" onAction="#handleBinarize"
+                                text="Binaryzacja"/>
+                    </children>
+                </HBox>
+                <HBox spacing="6.0" VBox.vgrow="NEVER">
+                    <children>
+                        <ComboBox fx:id="filterChooser" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="btnApplyFilter" mnemonicParsing="false" onAction="#handleApplyFilter" text="Filtruj"
+                                textAlignment="CENTER"/>
+                    </children>
+                </HBox>
+                <Button fx:id="btnAcceptFilter" mnemonicParsing="false" onAction="#handleAcceptFilter" text="Akceptuj"/>
+            </children>
+        </VBox>
+    </left>
 </BorderPane>

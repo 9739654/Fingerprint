@@ -17,47 +17,69 @@ public class Controller {
 	@FXML
 	MenuItem mniFileOpen, mniFileExit;
 	@FXML
-	Button btnFilter1, btnFilter2;
+	Button btnFilter1, btnApplyFilter, btnAcceptFilter;
 	@FXML
 	ImageView imgLeft, imgRight;
 	@FXML
-	Slider filter1Param;
+	Slider binarizeParam;
+	@FXML
+	ComboBox<Filter> filterChooser;
 
 	LazyLoad<FileChooser> fileChooserSupplier = new LazyLoad().withSupplier(() -> new FileChooser());
 	Image originalImage;
-	ImageFilters filters;
+	Filters filters = Filters.getFilters();
+	FileChooser.ExtensionFilter extensionFilter;
 
 	@FXML
 	void initialize() {
-		filters = new ImageFilters();
+		enableButtons(false);
+		for (Filter fn : filters) {
+			filterChooser.getItems().add(fn);
+		}
+		filterChooser.setValue(filters.get(0));
+		extensionFilter = new FileChooser.ExtensionFilter("Obrazki", ".jpg", ".jpeg", ".bmp", ".png");
+
 	}
 
 	@FXML
-	void handleFilter1(ActionEvent event) {
-		Image result = filters
-				.withImage(originalImage)
-				.withThreshold((int) filter1Param.getValue())
-				.binarize()
-				.getResult();
-		imgRight.setImage(result);
+	void handleBinarize(ActionEvent event) {
 	}
 
 	@FXML
-	void handleFilter2(ActionEvent event) {
-		Image result = filters
+	void handleApplyFilter(ActionEvent event) {
+		filterChooser
+				.getValue()
 				.withImage(originalImage)
-				.horizontalEdges()
-				.getResult();
-		imgRight.setImage(result);
+				.filter()
+				.setImage(imgRight);
+	}
+
+	@FXML
+	void handleAcceptFilter() {
+		originalImage = imgRight.getImage();
+		imgLeft.setImage(originalImage);
 	}
 
 	@FXML
 	void handleFileOpen(ActionEvent event) {
-		File choosen = fileChooserSupplier
-				.get()
-				.showOpenDialog(root.getScene().getWindow());
-		originalImage = new Image(choosen.toURI().toString());
-		imgLeft.setImage(originalImage);
+		FileChooser fileChooser = fileChooserSupplier.get();
+		fileChooser.setSelectedExtensionFilter(extensionFilter);
+		File choosen = fileChooser.showOpenDialog(root.getScene().getWindow());
+		if (choosen != null) {
+			originalImage = new Image(choosen.toURI().toString());
+			imgLeft.setImage(originalImage);
+            enableButtons(true);
+		}
+	}
+
+	@FXML
+	private void enableButtons(boolean enable) {
+		boolean disable = !enable;
+		btnFilter1.setDisable(disable);
+		btnApplyFilter.setDisable(disable);
+		filterChooser.setDisable(disable);
+		binarizeParam.setDisable(disable);
+		btnAcceptFilter.setDisable(disable);
 	}
 
 	@FXML
