@@ -7,6 +7,9 @@ import javafx.scene.image.ImageView;
 import java.awt.image.BufferedImage;
 import java.util.function.BiConsumer;
 
+/**
+ *
+ */
 class Negate extends Filter {
 	public Negate() {
 		super("Negacja", new int[][]{{1}});
@@ -40,8 +43,61 @@ class BinaryErosion extends Filter {
 		imageType = BufferedImage.TYPE_BYTE_BINARY;
 		pixelProcedure = erosionPixelFilter;
 	}
+}
 
+/**
+ * Weaker than BinaryErosion
+ */
+class BinaryErosion2 extends Filter {
+	public BinaryErosion2() {
+		super(
+				"Erozja 2",
+				new int[][] {
+						{0,1,0},
+						{1,1,1},
+						{0,1,0}
+				}
+		);
 
+		imageType = BufferedImage.TYPE_BYTE_BINARY;
+		pixelProcedure = erosionPixelFilter;
+	}
+}
+
+/**
+ * Stronger than BinaryErosion
+ */
+class BinaryErosion3 extends Filter {
+	public BinaryErosion3() {
+		super("Erozja 3",
+				new int[][] {
+						{1,1,1},
+						{1,1,1},
+						{0,0,0}
+				});
+		imageType = BufferedImage.TYPE_BYTE_BINARY;
+
+	}
+
+	@Override
+	public Filter filter() {
+		pixelProcedure = erosionPixelFilter;
+		filterImage();
+		rotateFilter();
+		createNewDest();
+
+		filterImage();
+		rotateFilter();
+		createNewDest();
+
+		filterImage();
+		rotateFilter();
+		createNewDest();
+
+		filterImage();
+		dest = null;
+		return this;
+	}
 }
 
 class BinaryDilation extends Filter {
@@ -59,14 +115,35 @@ class BinaryDilation extends Filter {
 	}
 }
 
+/**
+ * Weaker than BinaryDlilation
+ */
+class BinaryDilation2 extends Filter {
+	public BinaryDilation2() {
+		super(
+				"Dylatacja 2",
+				new int[][] {
+						{0,1,0},
+						{1,1,1},
+						{0,1,0}
+				}
+		);
+		imageType = BufferedImage.TYPE_BYTE_BINARY;
+		pixelProcedure = dilationPixelFilter;
+	}
+}
+
+/**
+ * Work in progress
+ */
 class BinaryScelet extends Filter {
 	public BinaryScelet() {
 		super(
 				"Szkieletyzacja",
 				new int[][]{
-						{  0,   0,   0},
-						{255, 255, 255},
-						{255, 255, 255}
+						{0, 0, 0},
+						{1, 1, 1},
+						{1, 1, 1}
 				}
 		);
 
@@ -75,11 +152,12 @@ class BinaryScelet extends Filter {
 
 	@Override
 	public Filter filter() {
-		pixelProcedure = erosionPixelFilter;
+		pixelProcedure = skeletonPixelFilter;
 		filterImage();
-		negateFilter();
-		pixelProcedure = dilationPixelFilter;
-		filterImage();
+		createNewDest();
+		rotateFilter();
+
+		//filterImage();
 		dest = null;
 		return this;
 	}
@@ -87,6 +165,9 @@ class BinaryScelet extends Filter {
 
 }
 
+/**
+ * Detect horizontal edges
+ */
 class HorizontalPrewitt extends Filter {
 	public HorizontalPrewitt() {
 		super("poziomy Prewitt",
@@ -94,6 +175,9 @@ class HorizontalPrewitt extends Filter {
 	}
 }
 
+/**
+ * Detect horizontal edges. Theoretically better than Prewitt
+ */
 class HorizontalSobel extends Filter {
 	public HorizontalSobel() {
 		super("poziomy Sobel",
@@ -101,6 +185,9 @@ class HorizontalSobel extends Filter {
 	}
 }
 
+/**
+ * Detect vertical edges
+ */
 class VerticalPrewitt extends Filter {
 	public VerticalPrewitt() {
 		super("pionowy Prewitt",
@@ -112,6 +199,9 @@ class VerticalPrewitt extends Filter {
 	}
 }
 
+/**
+ * Detect vertical edges. Theoretically better than Prewitt.
+ */
 class VerticalSobel extends Filter {
 	public VerticalSobel() {
 		super("pionowy Sobel",
@@ -123,6 +213,9 @@ class VerticalSobel extends Filter {
 	}
 }
 
+/**
+ * Smooth picture
+ */
 class Gauss5x5 extends Filter {
 	public Gauss5x5() {
 		super("Gauss 5x5",
@@ -135,6 +228,9 @@ class Gauss5x5 extends Filter {
 	}
 }
 
+/**
+ * Smooth picture. Greater radius.
+ */
 class BinarySmooth7x7 extends Filter {
 	public BinarySmooth7x7() {
 		super(
@@ -151,6 +247,9 @@ class BinarySmooth7x7 extends Filter {
 	}
 }
 
+/**
+ * Small radius gauss smooth.
+ */
 class Gauss3x3 extends Filter {
 	public Gauss3x3() {
 		super("Gauss 3x3",
@@ -158,6 +257,9 @@ class Gauss3x3 extends Filter {
 	}
 }
 
+/**
+ * Smooth based on avarage value.
+ */
 class Smooth extends Filter {
 	public Smooth() {
 		super("Wygładzenie R1",
@@ -165,6 +267,9 @@ class Smooth extends Filter {
 	}
 }
 
+/**
+ * Simple binarization
+ */
 class Binarize extends Filter {
 	public Binarize() {
 		super("Binaryzacja", new int[][]{{1}});
@@ -172,6 +277,9 @@ class Binarize extends Filter {
 	}
 }
 
+/**
+ * Detect edges in all directions
+ */
 class AllEdges extends Filter {
 	public AllEdges() {
 		super(
@@ -186,19 +294,9 @@ class AllEdges extends Filter {
 	}
 }
 
-class AllEdges5x5 extends Filter {
-	public AllEdges5x5() {
-		super(
-				"Wszystkie krawędzie 5x5",
-				new int[][]{
-						{-2,-2,-2,-2,-2},
-						{-2,-1,-1,-1,-2},
-						{-2,-1,32,-1,-2},
-						{-2,-1,-1,-1,-2},
-						{-2,-2,-2,-2,-2}});
-	}
-}
-
+/**
+ * Detects edges in all directions. Inverse.
+ */
 class AllEdgesInverted extends Filter {
 	public AllEdgesInverted() {
 		super(
@@ -214,6 +312,9 @@ class AllEdgesInverted extends Filter {
 	}
 }
 
+/**
+ * Custom filter
+ */
 class CustomFilter extends Filter {
 	public CustomFilter() {
 		super("filtr testowy", new int[][]{{1}});
@@ -256,7 +357,6 @@ public abstract class Filter {
 	int filterHalfWidth;
 	int filterHalfHeight;
 	int imageType;
-	Image targetImage;
 
 	private String name;
 	protected BiConsumer<Integer, Integer> pixelProcedure;
@@ -299,8 +399,9 @@ public abstract class Filter {
 				color = source.getRGB(x - filterHalfWidth + col, y - filterHalfHeight + row);
 				//color >>= 16;
 				color &= 0xFF;
-				if (filter[row][col] > 0) {
-					setToBlack |= (color == 0);
+				int mask = filter[row][col];
+				if (mask > 0 && color == 0) {
+					setToBlack |= true;
 				}
 			}
 		}
@@ -322,8 +423,9 @@ public abstract class Filter {
 				color = source.getRGB(x - filterHalfWidth + col, y - filterHalfHeight + row);
 				//color >>= 16;
 				color &= 0xFF;
-				if (filter[row][col] > 0) {
-					setToWhite |= (color > 0);
+				int mask = filter[row][col];
+				if (mask > 0 && color > 0) {
+					setToWhite |= true;
 				}
 			}
 		}
@@ -331,6 +433,29 @@ public abstract class Filter {
 			color |= 0x00FFFFFF;
 		} else {
 			color &= 0xFF000000;
+		}
+
+		dest.setRGB(x, y, color);
+	};
+
+	protected final BiConsumer<Integer, Integer> skeletonPixelFilter = (x, y) -> {
+		int r, color = 0;
+		boolean setToBlack = true;
+
+		for (int row = 0; row < filter.length; row++) {
+			for (int col = 0; col < filter[row].length; col++) {
+				color = source.getRGB(x - filterHalfWidth + col, y - filterHalfHeight + row);
+				color &= 0xFF;
+				int mask = filter[row][col];
+				if ((mask > 0 && color == 0) || (mask == 0 && color > 0)) {
+					setToBlack &= false;
+				}
+			}
+		}
+		if (setToBlack) {
+			color &= 0xFF000000;
+		} else {
+			color |= 0x00FFFFFF;
 		}
 
 		dest.setRGB(x, y, color);
@@ -392,8 +517,12 @@ public abstract class Filter {
 	 */
 	public Filter withImage(Image image) {
 		source = SwingFXUtils.fromFXImage(image, null);
-		dest = new BufferedImage(source.getWidth(), source.getHeight(), imageType);
+		createNewDest();
 		return this;
+	}
+
+	protected void createNewDest() {
+		dest = new BufferedImage(source.getWidth(), source.getHeight(), imageType);
 	}
 
 	/**
