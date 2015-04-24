@@ -7,6 +7,133 @@ import javafx.scene.image.ImageView;
 import java.awt.image.BufferedImage;
 import java.util.function.BiConsumer;
 
+class SearchFingerprint extends Filter {
+    public SearchFingerprint() {
+        super("szukanie odcisku", new int[][] {{1}});
+    }
+
+    @Override
+    public Filter filter() {
+
+        int color, startX, startY, endX, endY;
+        int[] horizontalResult = new int[source.getHeight()];
+        int[] verticalResult = new int[source.getWidth()];
+
+        for (int row = 0; row < source.getHeight(); row++) {
+            int rowResult = 0;
+            for (int col = 0; col < source.getWidth(); col++) {
+                color = source.getRGB(col, row) & 0xFF;
+                rowResult += color;
+            }
+            rowResult = rowResult / source.getWidth();
+            horizontalResult[row] = rowResult;
+        }
+
+        for (int col = 0; col < source.getWidth(); col++) {
+            int colResult = 0;
+            for (int row = 0; row < source.getHeight(); row++) {
+                color = source.getRGB(col, row) & 0xFF;
+                colResult += color;
+            }
+            colResult = colResult / source.getHeight();
+            verticalResult[col] = colResult;
+        }
+
+        startX = searchStartX(verticalResult);
+        startY = searchStartY(horizontalResult);
+        System.out.println("Poczatek X: " + startX);
+        System.out.println("Poczatek Y: " + startY);
+
+        endX = searchEndX(verticalResult);
+        endY = searchEndY(horizontalResult);
+        System.out.println("Koniec X: " + endX);
+        System.out.println("Koniec Y: " + endY);
+
+        //Horizontal line && vertical line
+        for (int col = 0; col < source.getWidth(); col++) {
+            for (int row = 0; row < source.getHeight(); row++) {
+                if(row == startY || row == endY || col == startX || col == endX)
+                    color = 16711680;
+                else
+                    color = source.getRGB(col, row);
+                source.setRGB(col, row, color);
+            }
+        }
+//        source = dest;
+        dest = null;
+
+        return this;
+    }
+
+    private int searchStartX(int[] tabResult) {
+        int start = 0;
+        int limit = 10;
+
+        for (int row = 0; row < tabResult.length; row++) {
+            if (tabResult[row] < 254 ) {
+                if (limit == 10)
+                    start = row;
+                else if(limit == 0)
+                    break;
+                --limit;
+            }
+        }
+
+        return start;
+    }
+
+    private int searchStartY(int[] tabResult) {
+        int start = 0;
+        int limit = 10;
+
+        for (int col = 0; col < tabResult.length; col++) {
+            if (tabResult[col] < 254 ) {
+                if (limit == 10)
+                    start = col;
+                else if(limit == 0)
+                    break;
+                --limit;
+            }
+        }
+
+        return start;
+    }
+
+    private int searchEndX(int[] tabResult) {
+        int end = tabResult.length;
+        int limit = 10;
+
+        for (int row = tabResult.length - 1; row >= 0; row--) {
+            if (tabResult[row] < 254 ) {
+                if (limit == 10)
+                    end = row;
+                else if(limit == 0)
+                    break;
+                --limit;
+            }
+        }
+
+        return end;
+    }
+
+    private int searchEndY(int[] tabResult) {
+        int end = tabResult.length;
+        int limit = 10;
+
+        for (int col = tabResult.length - 1; col >= 0; col--) {
+            if (tabResult[col] < 254 ) {
+                if (limit == 10)
+                    end = col;
+                else if(limit == 0)
+                    break;
+                --limit;
+            }
+        }
+
+        return end;
+    }
+}
+
 class HorizontalPrewitt extends Filter {
 	public HorizontalPrewitt() {
 		super("poziomy Prewitt",
@@ -132,11 +259,11 @@ public abstract class Filter {
 		dg /= totalFilterWeight;
 		db /= totalFilterWeight;
 		color = (dr << 16) | (dg << 8) | db;
-		dest.setRGB(x, y, color);
+        dest.setRGB(x, y, color);
 	};
 
 	protected Filter(String name, int[][] filter) {
-		this.name = name;
+        this.name = name;
 		this.filter = filter;
 		this.imageType = BufferedImage.TYPE_BYTE_GRAY;
 		this.pixelProcedure = filterImagePixel;
@@ -175,12 +302,13 @@ public abstract class Filter {
      * Do the filtering.
      * @return
      */
-	public Filter filter() {
-		for (int row = filterHalfWidth; row < source.getHeight() - filterHalfWidth; row++) {
-			filterImageRow(row);
-		}
-		source = dest;
-		dest = null;
+    public Filter filter() {
+        for (int row = filterHalfWidth; row < source.getHeight() - filterHalfWidth; row++) {
+            filterImageRow(row);
+        }
+
+        source = dest;
+        dest = null;
 		return this;
 	}
 

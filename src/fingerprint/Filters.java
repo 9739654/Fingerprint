@@ -1,7 +1,6 @@
 package fingerprint;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -12,7 +11,8 @@ public final class Filters extends ArrayList<Filter> {
 	private static Filters filters;
 
 	private Filters() {
-		add(new HorizontalPrewitt());
+        add(new SearchFingerprint());
+        add(new HorizontalPrewitt());
 		add(new HorizontalSobel());
 		add(new VerticalPrewitt());
 		add(new VerticalSobel());
@@ -47,5 +47,4 @@ public final class Filters extends ArrayList<Filter> {
 		}
 		return Optional.empty();
 	}
-
 }
