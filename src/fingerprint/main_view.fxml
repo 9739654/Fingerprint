@@ -18,8 +18,10 @@
             <menus>
                 <Menu mnemonicParsing="false" text="Plik">
                     <items>
-                        <MenuItem fx:id="mniFileOpen" mnemonicParsing="false" onAction="#handleFileOpen" text="Otwórz"/>
-                        <MenuItem fx:id="mniFileExit" mnemonicParsing="false" onAction="#handleFileExit"
+                        <MenuItem fx:id="mniFileOpen"       mnemonicParsing="false" onAction="#handleFileOpen" text="Otwórz"/>
+                        <MenuItem fx:id="mniFileOpenTest"   mnemonicParsing="false" onAction="#handleOpenTestImage" text="Otwórz testowy"/>
+                        <MenuItem fx:id="mniFileSave"       mnemonicParsing="false" onAction="#handleFileSave" text="Save"/>
+                        <MenuItem fx:id="mniFileExit"       mnemonicParsing="false" onAction="#handleFileExit"
                                   text="Zakończ"/>
                     </items>
                 </Menu>
