@@ -1,7 +1,6 @@
 package fingerprint;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -12,6 +11,7 @@ public final class Filters extends ArrayList<Filter> {
 	private static Filters filters;
 
 	private Filters() {
+        add(new SearchFingerprint());
 		add(new Gauss5x5());
 		add(new Gauss3x3());
 		add(new AllEdgesInverted());
@@ -57,5 +57,4 @@ public final class Filters extends ArrayList<Filter> {
 		}
 		return Optional.empty();
 	}
-
 }
