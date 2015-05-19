@@ -1,5 +1,8 @@
 package fingerprint;
 
+import fingerprint.linefinder.LineFinder;
+import fingerprint.linefinder.LineParams;
+import fingerprint.linefinder.LineResult;
 import javafx.application.Platform;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
@@ -30,11 +33,22 @@ public class Controller {
 	Slider binarizeParam;
 	@FXML
 	ComboBox<Filter> filterChooser;
+	@FXML
+	Button btnCheckLines;
 
 	LazyLoad<FileChooser> fileChooserSupplier = new LazyLoad().withSupplier(() -> new FileChooser());
 	//Image originalImage;
 	Filters filters = Filters.getFilters();
 	FileChooser.ExtensionFilter extensionFilter;
+	LineFinder lineFinder;
+	LineParams lineParams;
+
+	{
+		lineFinder = new LineFinder();
+		lineParams = new LineParams();
+		lineParams.horizontal = new int[] {100, 200, 300};
+		lineParams.vertical = lineParams.horizontal;
+	}
 
 	@FXML
 	void initialize() {
@@ -64,6 +78,16 @@ public class Controller {
 	void handleAcceptFilter() {
 		imgLeft.setImage(imgRight.getImage());
         imgRight.setImage(null);
+	}
+
+	@FXML
+	void handleCheckLines() {
+		LineResult result = lineFinder.image(imgLeft.getImage())
+				.params(lineParams)
+				.find()
+				.getResult();
+
+		System.out.println(result);
 	}
 
 	@FXML
@@ -118,6 +142,7 @@ public class Controller {
 		filterChooser.setDisable(disable);
 		binarizeParam.setDisable(disable);
 		btnAcceptFilter.setDisable(disable);
+		btnCheckLines.setDisable(disable);
 	}
 
 	@FXML

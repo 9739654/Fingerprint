@@ -66,6 +66,7 @@
                     </children>
                 </HBox>
                 <Button fx:id="btnAcceptFilter" mnemonicParsing="false" onAction="#handleAcceptFilter" text="Akceptuj"/>
+                <Button fx:id="btnCheckLines" mnemonicParsing="false" onAction="#handleCheckLines" text="Wyszukaj linie"/>
             </children>
         </VBox>
     </left>
