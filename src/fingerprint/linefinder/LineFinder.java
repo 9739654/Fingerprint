@@ -2,9 +2,12 @@ package fingerprint.linefinder;
 
 import fingerprint.trend.Trend;
 import javafx.scene.image.Image;
+import javafx.scene.image.PixelReader;
 
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class LineFinder {
@@ -32,13 +35,21 @@ public class LineFinder {
 	public LineFinder find() {
 		result = new LineResult();
 		for (int xIndex : params.horizontal) {
-			count(xIndex, image::getWidth, (index, found) -> result.horizontal.put(index, found));
+			countHorizontal(xIndex);
 		}
 		for (int yIndex : params.vertical) {
-			count(yIndex, image::getHeight, (index, found) -> result.vertical.put(index, found));
+			countVertical(yIndex);
 		}
 		last.clear();
 		return this;
+	}
+
+	private int getHorizontalPixel(Image image, int line, int pixel) {
+		return image.getPixelReader().getArgb(pixel, line);
+	}
+
+	private int getVerticalPixel(Image image, int line, int pixel) {
+		return image.getPixelReader().getArgb(line, pixel);
 	}
 
 	/**
@@ -46,20 +57,7 @@ public class LineFinder {
 	 * @param row
 	 */
 	private void countHorizontal(int row) {
-		int linesFound = 0;
-		fillQueue(row);
-		Trend lastTrend = Trend.CONSTANT;
-		for (int pixel = queueSize; pixel<image.getWidth(); pixel++) {
-			int value = image.getPixelReader().getArgb(row, pixel);
-			feedQueue(value);
-			Trend trend = Trend.of(last);
-			if (lastTrend.maximum(trend)) {
-				linesFound += 1;
-			}
-			lastTrend = trend;
-		}
-		result.horizontal.put(row, linesFound);
-		last.clear();
+		count(row, image::getWidth, this::getHorizontalPixel, result.horizontal);
 	}
 
 	/**
@@ -67,35 +65,26 @@ public class LineFinder {
 	 * @param col
 	 */
 	private void countVertical(int col) {
-		int linesFound = 0;
-		fillQueue(col);
-		Trend lastTrend = Trend.CONSTANT;
-		for (int pixel = queueSize; pixel<image.getHeight(); pixel++) {
-			int value = image.getPixelReader().getArgb(pixel, col);
-			feedQueue(value);
-			Trend trend = Trend.of(last);
-			if (lastTrend.maximum(trend)) {
-				linesFound++;
-			}
-			lastTrend = trend;
-		}
-		result.vertical.put(col, linesFound);
-		last.clear();
+		count(col, image::getHeight, this::getVerticalPixel, result.vertical);
 	}
 
 	/**
 	 *
 	 * @param index index of row/col
 	 * @param lengthFunc function that return row/col length
-	 * @param resultHandler consumer that accepts result: col/row index and numer of lines found
+	 * @param results
 	 */
-	private void count(int index, Supplier<Double> lengthFunc, BiConsumer<Integer, Integer> resultHandler) {
+	private void count(
+			int index,
+			Supplier<Double> lengthFunc,
+			TriFunction<Image, Integer, Integer, Integer> valueGetter,
+			Map<Integer, Integer> results) {
 		int found = 0;
 		int length = (int) (double) lengthFunc.get();
 		fillQueue(index);
 		Trend lastTrend = Trend.CONSTANT;
 		for (int pixel = queueSize; pixel<length; pixel++) {
-			int value = image.getPixelReader().getArgb(pixel, index);
+			int value = valueGetter.accept(image, index, pixel);
 			feedQueue(value);
 			Trend trend = Trend.of(last);
 			if (lastTrend.maximum(trend)) {
@@ -103,7 +92,7 @@ public class LineFinder {
 			}
 			lastTrend = trend;
 		}
-		resultHandler.accept(index, found);
+		results.put(index, found);
 		last.clear();
 	}
 
@@ -113,7 +102,8 @@ public class LineFinder {
 	 */
 	private void fillQueue(int row) {
 		for (int pixel = 0; pixel < queueSize; pixel++) {
-			int value = image.getPixelReader()
+			int value = image
+					.getPixelReader()
 					.getArgb(row, pixel);
 			feedQueue(value);
 		}
