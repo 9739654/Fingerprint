@@ -4,6 +4,8 @@ import fingerprint.trend.Trend;
 import javafx.scene.image.Image;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Supplier;
 
 public class LineFinder {
 
@@ -29,29 +31,41 @@ public class LineFinder {
 
 	public LineFinder find() {
 		result = new LineResult();
-		for (int index : params.horizontal) {
-			countHorizontal(index);
+		for (int xIndex : params.horizontal) {
+			count(xIndex, image::getWidth, (index, found) -> result.horizontal.put(index, found));
+		}
+		for (int yIndex : params.vertical) {
+			count(yIndex, image::getHeight, (index, found) -> result.vertical.put(index, found));
 		}
 		last.clear();
 		return this;
 	}
 
+	/**
+	 * Counts slopes from left to right
+	 * @param row
+	 */
 	private void countHorizontal(int row) {
 		int linesFound = 0;
 		fillQueue(row);
 		Trend lastTrend = Trend.CONSTANT;
-		for (int pixel = queueSize; pixel<image.getHeight(); pixel++) {
+		for (int pixel = queueSize; pixel<image.getWidth(); pixel++) {
 			int value = image.getPixelReader().getArgb(row, pixel);
 			feedQueue(value);
 			Trend trend = Trend.of(last);
 			if (lastTrend.maximum(trend)) {
-				linesFound++;
+				linesFound += 1;
 			}
 			lastTrend = trend;
 		}
 		result.horizontal.put(row, linesFound);
+		last.clear();
 	}
 
+	/**
+	 * Counts slopes from top to bottom
+	 * @param col
+	 */
 	private void countVertical(int col) {
 		int linesFound = 0;
 		fillQueue(col);
@@ -65,7 +79,32 @@ public class LineFinder {
 			}
 			lastTrend = trend;
 		}
-		result.horizontal.put(col, linesFound);
+		result.vertical.put(col, linesFound);
+		last.clear();
+	}
+
+	/**
+	 *
+	 * @param index index of row/col
+	 * @param lengthFunc function that return row/col length
+	 * @param resultHandler consumer that accepts result: col/row index and numer of lines found
+	 */
+	private void count(int index, Supplier<Double> lengthFunc, BiConsumer<Integer, Integer> resultHandler) {
+		int found = 0;
+		int length = (int) (double) lengthFunc.get();
+		fillQueue(index);
+		Trend lastTrend = Trend.CONSTANT;
+		for (int pixel = queueSize; pixel<length; pixel++) {
+			int value = image.getPixelReader().getArgb(pixel, index);
+			feedQueue(value);
+			Trend trend = Trend.of(last);
+			if (lastTrend.maximum(trend)) {
+				found += 1;
+			}
+			lastTrend = trend;
+		}
+		resultHandler.accept(index, found);
+		last.clear();
 	}
 
 	/**

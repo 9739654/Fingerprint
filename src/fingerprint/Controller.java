@@ -82,7 +82,8 @@ public class Controller {
 
 	@FXML
 	void handleCheckLines() {
-		LineResult result = lineFinder.image(imgLeft.getImage())
+		LineResult result = lineFinder
+				.image(imgLeft.getImage())
 				.params(lineParams)
 				.find()
 				.getResult();
