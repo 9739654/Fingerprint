@@ -12,7 +12,6 @@ import javafx.stage.FileChooser;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
-import java.net.URI;
 import java.util.Optional;
 
 import java.io.File;
@@ -73,7 +72,7 @@ public class Controller {
 
 	@FXML
 	void handleOpenTestImage() {
-		File source = new File("./filter-test.png");
+		File source = new File("./filter-test.jpg");
 		tryOpenFile(source);
 	}
 

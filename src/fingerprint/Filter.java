@@ -59,7 +59,59 @@ class SearchFingerprint extends Filter {
                 source.setRGB(col, row, color);
             }
         }
-//        source = dest;
+
+        //Tworzenie 5 pionowych lini pomocniczych
+        int[] verticalData = new int[5];
+        int[] linePos = new int[5];
+        linePos[0] = startX + (endX - startX)/6;
+        linePos[1] = startX + (endX - startX)*2/6;
+        linePos[2] = startX + (endX - startX)*3/6;
+        linePos[3] = startX + (endX - startX)*4/6;
+        linePos[4] = startX + (endX - startX)*5/6;
+
+        System.out.println("Linie pionowe");
+        for(int i = 0; i < linePos.length; i++) {
+            System.out.println("Linaia pomocnicza " + i + " :" + linePos[i]);
+        }
+
+        //liczenie średniej wartości rgb dla lini pomocniczej
+        for(int i = 0; i < linePos.length; i++) {
+            int result = 0;
+            for (int row = startY; row < endY; row++) {
+                color = source.getRGB(linePos[i], row) & 0xFF;
+                result += color;
+            }
+            result = result / (endY - startY);
+            verticalData[i] = result;
+            System.out.println("Srednia wartosc RGB dla linia " + i + ": " + result);
+        }
+
+        System.out.println();
+        //Tworzenie 5 poziomych lini pomocniczych
+        int[] horizontalData = new int[5];
+        linePos[0] = startY + (endY - startY)/6;
+        linePos[1] = startY + (endY - startY)*2/6;
+        linePos[2] = startY + (endY - startY)*3/6;
+        linePos[3] = startY + (endY - startY)*4/6;
+        linePos[4] = startY + (endY - startY)*5/6;
+
+        System.out.println("Linie poziome");
+        for(int i = 0; i < linePos.length; i++) {
+            System.out.println("Linia pomocnicza " + i + ": " + linePos[i]);
+        }
+
+        //liczenie średniej wartości rgb dla lini pomocniczej
+        for(int i = 0; i < linePos.length; i++) {
+            int result = 0;
+            for (int col = startX; col < endX; col++) {
+                color = source.getRGB(col, linePos[i]) & 0xFF;
+                result += color;
+            }
+            result = result / (endX - startX);
+            horizontalData[i] = result;
+            System.out.println("Srednia wartosc RGB dla linia " + i + ": " + result);
+        }
+
         dest = null;
 
         return this;
