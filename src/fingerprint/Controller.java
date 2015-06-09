@@ -14,10 +14,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 
 import javax.imageio.ImageIO;
-import java.io.IOException;
+import java.io.*;
 import java.util.Optional;
-
-import java.io.File;
 
 public class Controller {
 	@FXML
@@ -25,7 +23,7 @@ public class Controller {
 	@FXML
 	MenuItem mniFileOpen, mniFileExit;
 	@FXML
-	Button btnFilter1, btnApplyFilter, btnAcceptFilter;
+	Button btnFilter1, btnApplyFilter, btnAcceptFilter, btnSaveFingerprint;
 	@FXML
 	ImageView imgLeft, imgRight;
 	@FXML
@@ -34,6 +32,8 @@ public class Controller {
 	ComboBox<Filter> filterChooser;
 	@FXML
 	Button btnCheckLines;
+    @FXML
+    TextField inpFingerprintName;
 
 	LazyLoad<FileChooser> fileChooserSupplier = new LazyLoad().withSupplier(() -> new FileChooser());
 	//Image originalImage;
@@ -90,6 +90,36 @@ public class Controller {
 		System.out.println(result);
 	}
 
+    @FXML
+    void handleSaveFingerprint() throws FileNotFoundException, UnsupportedEncodingException {
+        //Najpierw należy wyszukać odcisk
+        int[] verticalData = filters.get(0).verticalData;
+        int[] horizontalData = filters.get(0).horizontalData;
+
+        String name = inpFingerprintName.getText();
+        System.out.println(name);
+
+        try {
+            PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("data.txt", true)));
+            //PrintWriter writer = new PrintWriter("data.txt", "UTF-8");
+            writer.println("#" + name);
+            for (int i = 0; i < verticalData.length; i++) {
+                writer.println("V" + i + " " + verticalData[i]);
+                System.out.println("V" + i + " " + verticalData[i]);
+            }
+
+            for (int i = 0; i < horizontalData.length; i++) {
+                writer.println("H" + i + " " + horizontalData[i]);
+                System.out.println("H" + i + " " + horizontalData[i]);
+            }
+
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 	@FXML
 	void handleFileOpen(ActionEvent event) {
 		getFile().ifPresent(choosen -> tryOpenFile(choosen));
@@ -143,10 +173,13 @@ public class Controller {
 		binarizeParam.setDisable(disable);
 		btnAcceptFilter.setDisable(disable);
 		btnCheckLines.setDisable(disable);
-	}
+        btnSaveFingerprint.setDisable(disable);
+        inpFingerprintName.setDisable(disable);
+    }
 
 	@FXML
 	void handleFileExit(ActionEvent event) {
 		Platform.exit();
 	}
+
 }
