@@ -60,9 +60,20 @@ class SearchFingerprint extends Filter {
             }
         }
 
+        //odczytanie średnich RGB dla linii pomocniczych
+        verticalRGBAverage(startX, endX, startY, endY);
+        horizontalRGBAverage(startX, endX, startY, endY);
+
+        dest = null;
+
+        return this;
+    }
+
+    private void verticalRGBAverage(int startX, int endX, int startY, int endY) {
         //Tworzenie 5 pionowych lini pomocniczych
-        int[] verticalData = new int[5];
         int[] linePos = new int[5];
+        int color;
+
         linePos[0] = startX + (endX - startX)/6;
         linePos[1] = startX + (endX - startX)*2/6;
         linePos[2] = startX + (endX - startX)*3/6;
@@ -85,23 +96,25 @@ class SearchFingerprint extends Filter {
             verticalData[i] = result;
             System.out.println("Srednia wartosc RGB dla linia " + i + ": " + result);
         }
+    }
 
-        System.out.println();
+    private void horizontalRGBAverage(int startX, int endX, int startY, int endY) {
+        int[] linePos = new int[5];
+        int color;
         //Tworzenie 5 poziomych lini pomocniczych
-        int[] horizontalData = new int[5];
-        linePos[0] = startY + (endY - startY)/6;
-        linePos[1] = startY + (endY - startY)*2/6;
-        linePos[2] = startY + (endY - startY)*3/6;
-        linePos[3] = startY + (endY - startY)*4/6;
-        linePos[4] = startY + (endY - startY)*5/6;
+        linePos[0] = startY + (endY - startY) / 6;
+        linePos[1] = startY + (endY - startY) * 2 / 6;
+        linePos[2] = startY + (endY - startY) * 3 / 6;
+        linePos[3] = startY + (endY - startY) * 4 / 6;
+        linePos[4] = startY + (endY - startY) * 5 / 6;
 
         System.out.println("Linie poziome");
-        for(int i = 0; i < linePos.length; i++) {
+        for (int i = 0; i < linePos.length; i++) {
             System.out.println("Linia pomocnicza " + i + ": " + linePos[i]);
         }
 
         //liczenie średniej wartości rgb dla lini pomocniczej
-        for(int i = 0; i < linePos.length; i++) {
+        for (int i = 0; i < linePos.length; i++) {
             int result = 0;
             for (int col = startX; col < endX; col++) {
                 color = source.getRGB(col, linePos[i]) & 0xFF;
@@ -111,13 +124,9 @@ class SearchFingerprint extends Filter {
             horizontalData[i] = result;
             System.out.println("Srednia wartosc RGB dla linia " + i + ": " + result);
         }
-
-        dest = null;
-
-        return this;
     }
 
-    private int searchStartX(int[] tabResult) {
+        private int searchStartX(int[] tabResult) {
         int start = 0;
         int limit = 10;
 
@@ -530,6 +539,9 @@ public abstract class Filter {
 
 	protected BufferedImage source;
 	protected BufferedImage dest;
+
+    int[] verticalData = new int[5];
+    int[] horizontalData = new int[5];
 
 	int[][] filter;
 	int totalFilterWeight;
