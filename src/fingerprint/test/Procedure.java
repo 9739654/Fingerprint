@@ -1,4 +1,4 @@
-package fingerprint;
+package fingerprint.test;
 
 /**
  * @author mati

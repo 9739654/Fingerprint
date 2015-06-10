@@ -1,4 +1,4 @@
-package fingerprint;
+package fingerprint.test;
 
 import fingerprint.linefinder.LineFinder;
 import fingerprint.linefinder.LineParams;
@@ -45,8 +45,9 @@ public class Controller {
 	{
 		lineFinder = new LineFinder();
 		lineParams = new LineParams();
-		lineParams.horizontal = new int[] {100, 200, 300};
-		lineParams.vertical = lineParams.horizontal;
+		lineParams.horizontalIndexes = new int[] {100, 200, 300};
+		lineParams.verticalIndexes = lineParams.horizontalIndexes;
+		lineParams.unit = LineParams.Unit.PIXEL;
 	}
 
 	@FXML

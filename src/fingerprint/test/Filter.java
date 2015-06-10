@@ -1,4 +1,4 @@
-package fingerprint;
+package fingerprint.test;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
@@ -49,7 +49,7 @@ class SearchFingerprint extends Filter {
         System.out.println("Koniec X: " + endX);
         System.out.println("Koniec Y: " + endY);
 
-        //Horizontal line && vertical line
+        //Horizontal line && verticalIndexes line
         for (int col = 0; col < source.getWidth(); col++) {
             for (int row = 0; row < source.getHeight(); row++) {
                 if(row == startY || row == endY || col == startX || col == endX)
@@ -354,7 +354,7 @@ class BinaryScelet extends Filter {
 }
 
 /**
- * Detect horizontal edges
+ * Detect horizontalIndexes edges
  */
 class HorizontalPrewitt extends Filter {
 	public HorizontalPrewitt() {
@@ -364,7 +364,7 @@ class HorizontalPrewitt extends Filter {
 }
 
 /**
- * Detect horizontal edges. Theoretically better than Prewitt
+ * Detect horizontalIndexes edges. Theoretically better than Prewitt
  */
 class HorizontalSobel extends Filter {
 	public HorizontalSobel() {
@@ -374,7 +374,7 @@ class HorizontalSobel extends Filter {
 }
 
 /**
- * Detect vertical edges
+ * Detect verticalIndexes edges
  */
 class VerticalPrewitt extends Filter {
 	public VerticalPrewitt() {
@@ -388,7 +388,7 @@ class VerticalPrewitt extends Filter {
 }
 
 /**
- * Detect vertical edges. Theoretically better than Prewitt.
+ * Detect verticalIndexes edges. Theoretically better than Prewitt.
  */
 class VerticalSobel extends Filter {
 	public VerticalSobel() {
