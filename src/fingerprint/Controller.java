@@ -15,6 +15,8 @@ import javafx.stage.FileChooser;
 
 import javax.imageio.ImageIO;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 public class Controller {
@@ -41,13 +43,65 @@ public class Controller {
 	FileChooser.ExtensionFilter extensionFilter;
 	LineFinder lineFinder;
 	LineParams lineParams;
+    List<Fingerprint> fingerprints = new ArrayList<>();
 
-	{
+    {
 		lineFinder = new LineFinder();
 		lineParams = new LineParams();
 		lineParams.horizontal = new int[] {100, 200, 300};
 		lineParams.vertical = lineParams.horizontal;
+        readData();
 	}
+
+    void readData() {
+        //odczyt z pliku
+        BufferedReader reader;
+        try {
+            String currentLine;
+            reader = new BufferedReader(new FileReader("data.txt"));
+            while ((currentLine = reader.readLine()) != null) {
+                char firstLetter = currentLine.charAt(0);
+                if(firstLetter == '#') {
+                    Fingerprint newFingerprint = new Fingerprint();
+                    fingerprints.add(newFingerprint);
+                    String name = currentLine.substring(1, currentLine.length());
+                    newFingerprint.setName(name);
+                    int i = 0;
+                    String data;
+
+                    while(i++ < 10 && (data = reader.readLine()) != null) {
+                        char symbol = data.charAt(0);
+                        char cIndex = data.charAt(1);
+                        int index = Character.getNumericValue(cIndex);
+                        String svalue = data.substring(3, data.length());
+                        int value = Integer.parseInt(svalue);
+
+                        if(symbol == 'V') {
+                            newFingerprint.setVerticalData(index, value);
+                        }
+                        else if(symbol == 'H') {
+                            newFingerprint.setHorizontalData(index, value);
+                        }
+                    }
+                }
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //wypisanie danych
+        for (Fingerprint fingerprint : fingerprints) {
+            System.out.println(fingerprint.getName());
+            for (int i = 0; i < fingerprint.getHorizontalData().length; i++) {
+                System.out.println(fingerprint.getHorizontalData(i));
+            }
+            for (int i = 0; i < fingerprint.getVerticalData().length; i++) {
+                System.out.println(fingerprint.getVerticalData(i));
+            }
+        }
+    }
+
 
 	@FXML
 	void initialize() {
@@ -93,6 +147,8 @@ public class Controller {
     @FXML
     void handleSaveFingerprint() throws FileNotFoundException, UnsupportedEncodingException {
         //Najpierw należy wyszukać odcisk
+
+        //zapisanie danych do pliku
         int[] verticalData = filters.get(0).verticalData;
         int[] horizontalData = filters.get(0).horizontalData;
 

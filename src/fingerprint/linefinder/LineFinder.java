@@ -2,12 +2,8 @@ package fingerprint.linefinder;
 
 import fingerprint.trend.Trend;
 import javafx.scene.image.Image;
-import javafx.scene.image.PixelReader;
 
 import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class LineFinder {
