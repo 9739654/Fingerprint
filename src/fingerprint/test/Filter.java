@@ -3,7 +3,10 @@ package fingerprint.test;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.image.PixelReader;
+import javafx.scene.image.WritableImage;
 
+import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.util.function.BiConsumer;
 
@@ -12,10 +15,11 @@ class SearchFingerprint extends Filter {
         super("szukanie odcisku", new int[][] {{1}});
     }
 
+	int color, startX, startY, endX, endY;
+
     @Override
     public Filter filter() {
 
-        int color, startX, startY, endX, endY;
         int[] horizontalResult = new int[source.getHeight()];
         int[] verticalResult = new int[source.getWidth()];
 
@@ -49,25 +53,32 @@ class SearchFingerprint extends Filter {
         System.out.println("Koniec X: " + endX);
         System.out.println("Koniec Y: " + endY);
 
-        //Horizontal line && verticalIndexes line
-        for (int col = 0; col < source.getWidth(); col++) {
-            for (int row = 0; row < source.getHeight(); row++) {
-                if(row == startY || row == endY || col == startX || col == endX)
-                    color = 16711680;
-                else
-                    color = source.getRGB(col, row);
-                source.setRGB(col, row, color);
-            }
-        }
+//	    drawFrame();
 
         //odczytanie średnich RGB dla linii pomocniczych
         verticalRGBAverage(startX, endX, startY, endY);
         horizontalRGBAverage(startX, endX, startY, endY);
 
+	    // crop
+	    source = source.getSubimage(startX, startY, endX - startX, endY - startY);
+
         dest = null;
 
         return this;
     }
+
+	// Draws horizontal line && verticalIndexes line
+	private void drawFrame() {
+		for (int col = 0; col < source.getWidth(); col++) {
+			for (int row = 0; row < source.getHeight(); row++) {
+				if (row == startY || row == endY || col == startX || col == endX)
+					color = 16711680;
+				else
+					color = source.getRGB(col, row);
+				source.setRGB(col, row, color);
+			}
+		}
+	}
 
     private void verticalRGBAverage(int startX, int endX, int startY, int endY) {
         //Tworzenie 5 pionowych lini pomocniczych
@@ -126,7 +137,7 @@ class SearchFingerprint extends Filter {
         }
     }
 
-        private int searchStartX(int[] tabResult) {
+	private int searchStartX(int[] tabResult) {
         int start = 0;
         int limit = 10;
 
@@ -673,6 +684,7 @@ public abstract class Filter {
 			}
 		}
 	}
+
 	protected Filter(String name, int[][] filter) {
         this.name = name;
 		this.filter = filter;
