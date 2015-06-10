@@ -11,61 +11,61 @@ import java.awt.image.BufferedImage;
 import java.util.function.BiConsumer;
 
 class SearchFingerprint extends Filter {
-    public SearchFingerprint() {
-        super("szukanie odcisku", new int[][] {{1}});
-    }
+	public SearchFingerprint() {
+		super("szukanie odcisku", new int[][]{{1}});
+	}
 
 	int color, startX, startY, endX, endY;
 
-    @Override
-    public Filter filter() {
+	@Override
+	public Filter filter() {
 
-        int[] horizontalResult = new int[source.getHeight()];
-        int[] verticalResult = new int[source.getWidth()];
+		int[] horizontalResult = new int[source.getHeight()];
+		int[] verticalResult = new int[source.getWidth()];
 
-        for (int row = 0; row < source.getHeight(); row++) {
-            int rowResult = 0;
-            for (int col = 0; col < source.getWidth(); col++) {
-                color = source.getRGB(col, row) & 0xFF;
-                rowResult += color;
-            }
-            rowResult = rowResult / source.getWidth();
-            horizontalResult[row] = rowResult;
-        }
+		for (int row = 0; row < source.getHeight(); row++) {
+			int rowResult = 0;
+			for (int col = 0; col < source.getWidth(); col++) {
+				color = source.getRGB(col, row) & 0xFF;
+				rowResult += color;
+			}
+			rowResult = rowResult / source.getWidth();
+			horizontalResult[row] = rowResult;
+		}
 
-        for (int col = 0; col < source.getWidth(); col++) {
-            int colResult = 0;
-            for (int row = 0; row < source.getHeight(); row++) {
-                color = source.getRGB(col, row) & 0xFF;
-                colResult += color;
-            }
-            colResult = colResult / source.getHeight();
-            verticalResult[col] = colResult;
-        }
+		for (int col = 0; col < source.getWidth(); col++) {
+			int colResult = 0;
+			for (int row = 0; row < source.getHeight(); row++) {
+				color = source.getRGB(col, row) & 0xFF;
+				colResult += color;
+			}
+			colResult = colResult / source.getHeight();
+			verticalResult[col] = colResult;
+		}
 
-        startX = searchStartX(verticalResult);
-        startY = searchStartY(horizontalResult);
-        System.out.println("Poczatek X: " + startX);
-        System.out.println("Poczatek Y: " + startY);
+		startX = searchStartX(verticalResult);
+		startY = searchStartY(horizontalResult);
+		System.out.println("Poczatek X: " + startX);
+		System.out.println("Poczatek Y: " + startY);
 
-        endX = searchEndX(verticalResult);
-        endY = searchEndY(horizontalResult);
-        System.out.println("Koniec X: " + endX);
-        System.out.println("Koniec Y: " + endY);
+		endX = searchEndX(verticalResult);
+		endY = searchEndY(horizontalResult);
+		System.out.println("Koniec X: " + endX);
+		System.out.println("Koniec Y: " + endY);
 
 //	    drawFrame();
 
-        //odczytanie średnich RGB dla linii pomocniczych
-        verticalRGBAverage(startX, endX, startY, endY);
-        horizontalRGBAverage(startX, endX, startY, endY);
+		//odczytanie średnich RGB dla linii pomocniczych
+		verticalRGBAverage(startX, endX, startY, endY);
+		horizontalRGBAverage(startX, endX, startY, endY);
 
-	    // crop
-	    source = source.getSubimage(startX, startY, endX - startX, endY - startY);
+		// crop
+		source = source.getSubimage(startX, startY, endX - startX, endY - startY);
 
-        dest = null;
+		dest = null;
 
-        return this;
-    }
+		return this;
+	}
 
 	// Draws horizontal line && verticalIndexes line
 	private void drawFrame() {
@@ -80,130 +80,130 @@ class SearchFingerprint extends Filter {
 		}
 	}
 
-    private void verticalRGBAverage(int startX, int endX, int startY, int endY) {
-        //Tworzenie 5 pionowych lini pomocniczych
-        int[] linePos = new int[5];
-        int color;
+	private void verticalRGBAverage(int startX, int endX, int startY, int endY) {
+		//Tworzenie 5 pionowych lini pomocniczych
+		int[] linePos = new int[5];
+		int color;
 
-        linePos[0] = startX + (endX - startX)/6;
-        linePos[1] = startX + (endX - startX)*2/6;
-        linePos[2] = startX + (endX - startX)*3/6;
-        linePos[3] = startX + (endX - startX)*4/6;
-        linePos[4] = startX + (endX - startX)*5/6;
+		linePos[0] = startX + (endX - startX) / 6;
+		linePos[1] = startX + (endX - startX) * 2 / 6;
+		linePos[2] = startX + (endX - startX) * 3 / 6;
+		linePos[3] = startX + (endX - startX) * 4 / 6;
+		linePos[4] = startX + (endX - startX) * 5 / 6;
 
-        System.out.println("Linie pionowe");
-        for(int i = 0; i < linePos.length; i++) {
-            System.out.println("Linaia pomocnicza " + i + " :" + linePos[i]);
-        }
+		System.out.println("Linie pionowe");
+		for (int i = 0; i < linePos.length; i++) {
+			System.out.println("Linaia pomocnicza " + i + " :" + linePos[i]);
+		}
 
-        //liczenie średniej wartości rgb dla lini pomocniczej
-        for(int i = 0; i < linePos.length; i++) {
-            int result = 0;
-            for (int row = startY; row < endY; row++) {
-                color = source.getRGB(linePos[i], row) & 0xFF;
-                result += color;
-            }
-            result = result / (endY - startY);
-            verticalData[i] = result;
-            System.out.println("Srednia wartosc RGB dla linia " + i + ": " + result);
-        }
-    }
+		//liczenie średniej wartości rgb dla lini pomocniczej
+		for (int i = 0; i < linePos.length; i++) {
+			int result = 0;
+			for (int row = startY; row < endY; row++) {
+				color = source.getRGB(linePos[i], row) & 0xFF;
+				result += color;
+			}
+			result = result / (endY - startY);
+			verticalData[i] = result;
+			System.out.println("Srednia wartosc RGB dla linia " + i + ": " + result);
+		}
+	}
 
-    private void horizontalRGBAverage(int startX, int endX, int startY, int endY) {
-        int[] linePos = new int[5];
-        int color;
-        //Tworzenie 5 poziomych lini pomocniczych
-        linePos[0] = startY + (endY - startY) / 6;
-        linePos[1] = startY + (endY - startY) * 2 / 6;
-        linePos[2] = startY + (endY - startY) * 3 / 6;
-        linePos[3] = startY + (endY - startY) * 4 / 6;
-        linePos[4] = startY + (endY - startY) * 5 / 6;
+	private void horizontalRGBAverage(int startX, int endX, int startY, int endY) {
+		int[] linePos = new int[5];
+		int color;
+		//Tworzenie 5 poziomych lini pomocniczych
+		linePos[0] = startY + (endY - startY) / 6;
+		linePos[1] = startY + (endY - startY) * 2 / 6;
+		linePos[2] = startY + (endY - startY) * 3 / 6;
+		linePos[3] = startY + (endY - startY) * 4 / 6;
+		linePos[4] = startY + (endY - startY) * 5 / 6;
 
-        System.out.println("Linie poziome");
-        for (int i = 0; i < linePos.length; i++) {
-            System.out.println("Linia pomocnicza " + i + ": " + linePos[i]);
-        }
+		System.out.println("Linie poziome");
+		for (int i = 0; i < linePos.length; i++) {
+			System.out.println("Linia pomocnicza " + i + ": " + linePos[i]);
+		}
 
-        //liczenie średniej wartości rgb dla lini pomocniczej
-        for (int i = 0; i < linePos.length; i++) {
-            int result = 0;
-            for (int col = startX; col < endX; col++) {
-                color = source.getRGB(col, linePos[i]) & 0xFF;
-                result += color;
-            }
-            result = result / (endX - startX);
-            horizontalData[i] = result;
-            System.out.println("Srednia wartosc RGB dla linia " + i + ": " + result);
-        }
-    }
+		//liczenie średniej wartości rgb dla lini pomocniczej
+		for (int i = 0; i < linePos.length; i++) {
+			int result = 0;
+			for (int col = startX; col < endX; col++) {
+				color = source.getRGB(col, linePos[i]) & 0xFF;
+				result += color;
+			}
+			result = result / (endX - startX);
+			horizontalData[i] = result;
+			System.out.println("Srednia wartosc RGB dla linia " + i + ": " + result);
+		}
+	}
 
 	private int searchStartX(int[] tabResult) {
-        int start = 0;
-        int limit = 10;
+		int start = 0;
+		int limit = 10;
 
-        for (int row = 0; row < tabResult.length; row++) {
-            if (tabResult[row] < 254 ) {
-                if (limit == 10)
-                    start = row;
-                else if(limit == 0)
-                    break;
-                --limit;
-            }
-        }
+		for (int row = 0; row < tabResult.length; row++) {
+			if (tabResult[row] < 254) {
+				if (limit == 10)
+					start = row;
+				else if (limit == 0)
+					break;
+				--limit;
+			}
+		}
 
-        return start;
-    }
+		return start;
+	}
 
-    private int searchStartY(int[] tabResult) {
-        int start = 0;
-        int limit = 10;
+	private int searchStartY(int[] tabResult) {
+		int start = 0;
+		int limit = 10;
 
-        for (int col = 0; col < tabResult.length; col++) {
-            if (tabResult[col] < 254 ) {
-                if (limit == 10)
-                    start = col;
-                else if(limit == 0)
-                    break;
-                --limit;
-            }
-        }
+		for (int col = 0; col < tabResult.length; col++) {
+			if (tabResult[col] < 254) {
+				if (limit == 10)
+					start = col;
+				else if (limit == 0)
+					break;
+				--limit;
+			}
+		}
 
-        return start;
-    }
+		return start;
+	}
 
-    private int searchEndX(int[] tabResult) {
-        int end = tabResult.length;
-        int limit = 10;
+	private int searchEndX(int[] tabResult) {
+		int end = tabResult.length;
+		int limit = 10;
 
-        for (int row = tabResult.length - 1; row >= 0; row--) {
-            if (tabResult[row] < 254 ) {
-                if (limit == 10)
-                    end = row;
-                else if(limit == 0)
-                    break;
-                --limit;
-            }
-        }
+		for (int row = tabResult.length - 1; row >= 0; row--) {
+			if (tabResult[row] < 254) {
+				if (limit == 10)
+					end = row;
+				else if (limit == 0)
+					break;
+				--limit;
+			}
+		}
 
-        return end;
-    }
+		return end;
+	}
 
-    private int searchEndY(int[] tabResult) {
-        int end = tabResult.length;
-        int limit = 10;
+	private int searchEndY(int[] tabResult) {
+		int end = tabResult.length;
+		int limit = 10;
 
-        for (int col = tabResult.length - 1; col >= 0; col--) {
-            if (tabResult[col] < 254 ) {
-                if (limit == 10)
-                    end = col;
-                else if(limit == 0)
-                    break;
-                --limit;
-            }
-        }
+		for (int col = tabResult.length - 1; col >= 0; col--) {
+			if (tabResult[col] < 254) {
+				if (limit == 10)
+					end = col;
+				else if (limit == 0)
+					break;
+				--limit;
+			}
+		}
 
-        return end;
-    }
+		return end;
+	}
 }
 
 /**
@@ -215,10 +215,10 @@ class Negate extends Filter {
 
 		pixelProcedure = (x, y) -> {
 			int color = source.getRGB(x, y);
-			int r,g,b;
+			int r, g, b;
 			r = (color >> 16) & 0xFF;
-			g = (color >>  8) & 0xFF;
-			b = (color >>  0) & 0xFF;
+			g = (color >> 8) & 0xFF;
+			b = (color >> 0) & 0xFF;
 			r = 255 - r;
 			g = 255 - g;
 			b = 255 - b;
@@ -232,10 +232,10 @@ class BinaryErosion extends Filter {
 	public BinaryErosion() {
 		super(
 				"Erozja",
-				new int[][] {
-						{1,1,1},
-						{1,1,1},
-						{1,1,1}
+				new int[][]{
+						{1, 1, 1},
+						{1, 1, 1},
+						{1, 1, 1}
 				}
 		);
 
@@ -251,10 +251,10 @@ class BinaryErosion2 extends Filter {
 	public BinaryErosion2() {
 		super(
 				"Erozja 2",
-				new int[][] {
-						{0,1,0},
-						{1,1,1},
-						{0,1,0}
+				new int[][]{
+						{0, 1, 0},
+						{1, 1, 1},
+						{0, 1, 0}
 				}
 		);
 
@@ -269,10 +269,10 @@ class BinaryErosion2 extends Filter {
 class BinaryErosion3 extends Filter {
 	public BinaryErosion3() {
 		super("Erozja 3",
-				new int[][] {
-						{1,1,1},
-						{1,1,1},
-						{0,0,0}
+				new int[][]{
+						{1, 1, 1},
+						{1, 1, 1},
+						{0, 0, 0}
 				});
 		imageType = BufferedImage.TYPE_BYTE_BINARY;
 
@@ -303,10 +303,10 @@ class BinaryDilation extends Filter {
 	public BinaryDilation() {
 		super(
 				"Dylatacja",
-				new int[][] {
-						{1,1,1},
-						{1,1,1},
-						{1,1,1}
+				new int[][]{
+						{1, 1, 1},
+						{1, 1, 1},
+						{1, 1, 1}
 				}
 		);
 		imageType = BufferedImage.TYPE_BYTE_BINARY;
@@ -321,10 +321,10 @@ class BinaryDilation2 extends Filter {
 	public BinaryDilation2() {
 		super(
 				"Dylatacja 2",
-				new int[][] {
-						{0,1,0},
-						{1,1,1},
-						{0,1,0}
+				new int[][]{
+						{0, 1, 0},
+						{1, 1, 1},
+						{0, 1, 0}
 				}
 		);
 		imageType = BufferedImage.TYPE_BYTE_BINARY;
@@ -551,8 +551,8 @@ public abstract class Filter {
 	protected BufferedImage source;
 	protected BufferedImage dest;
 
-    int[] verticalData = new int[5];
-    int[] horizontalData = new int[5];
+	int[] verticalData = new int[5];
+	int[] horizontalData = new int[5];
 
 	int[][] filter;
 	int totalFilterWeight;
@@ -586,7 +586,7 @@ public abstract class Filter {
 		dg /= totalFilterWeight;
 		db /= totalFilterWeight;
 		color = (dr << 16) | (dg << 8) | db;
-        dest.setRGB(x, y, color);
+		dest.setRGB(x, y, color);
 	};
 
 	/**
@@ -664,8 +664,8 @@ public abstract class Filter {
 	};
 
 	protected void negateFilter() {
-		for (int i=0; i<filter.length; i++) {
-			for (int j=0; j<filter[i].length; j++) {
+		for (int i = 0; i < filter.length; i++) {
+			for (int j = 0; j < filter[i].length; j++) {
 				filter[i][j] = filter[i][j] == 0 ? 255 : 0;
 			}
 		}
@@ -686,7 +686,7 @@ public abstract class Filter {
 	}
 
 	protected Filter(String name, int[][] filter) {
-        this.name = name;
+		this.name = name;
 		this.filter = filter;
 		//this.imageType = BufferedImage.TYPE_BYTE_GRAY;
 		this.imageType = BufferedImage.TYPE_INT_RGB;
