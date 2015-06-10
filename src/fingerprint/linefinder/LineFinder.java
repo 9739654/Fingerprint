@@ -7,9 +7,6 @@ import java.util.*;
 import java.util.function.Supplier;
 
 public class LineFinder {
-
-	;
-
 	private static final int queueSize = 5;
 
 	private Image image;
@@ -30,38 +27,52 @@ public class LineFinder {
 
 	public LineFinder find() {
 		result = new LineResult();
-		for (int xIndex : params.horizontal) {
-			countHorizontal(xIndex);
-		}
-		for (int yIndex : params.vertical) {
-			countVertical(yIndex);
+		switch (params.unit) {
+			case PERCENTAGE:
+				for (int xIndex : params.horizontalIndexes) {
+					int where = (int) (xIndex * image.getWidth() / 100.0);
+					countHorizontalLines(where);
+				}
+				for (int yIndex : params.verticalIndexes) {
+					int where = (int) (yIndex * image.getHeight() / 100.0);
+					countVerticalLines(where);
+				}
+				break;
+			case PIXEL:
+				for (int xIndex : params.horizontalIndexes) {
+					countHorizontalLines(xIndex);
+				}
+				for (int yIndex : params.verticalIndexes) {
+					countVerticalLines(yIndex);
+				}
+				break;
 		}
 		last.clear();
 		return this;
 	}
 
-	private int getHorizontalPixel(Image image, int line, int pixel) {
-		return image.getPixelReader().getArgb(pixel, line);
+	private int getPixelOnHorizontalLine(Image image, int lineYIndex, int pixelXIndex) {
+		return image.getPixelReader().getArgb(pixelXIndex, lineYIndex);
 	}
 
-	private int getVerticalPixel(Image image, int line, int pixel) {
-		return image.getPixelReader().getArgb(line, pixel);
+	private int getPixelOnVerticalLine(Image image, int lineXIndex, int pixelYIndex) {
+		return image.getPixelReader().getArgb(lineXIndex, pixelYIndex);
 	}
 
 	/**
 	 * Counts slopes from left to right
-	 * @param row
+	 * @param atRow
 	 */
-	private void countHorizontal(int row) {
-		count(row, image::getWidth, this::getHorizontalPixel, result.horizontal);
+	private void countVerticalLines(int atRow) {
+		count(atRow, image::getWidth, this::getPixelOnHorizontalLine, result.vertical);
 	}
 
 	/**
 	 * Counts slopes from top to bottom
-	 * @param col
+	 * @param atCol
 	 */
-	private void countVertical(int col) {
-		count(col, image::getHeight, this::getVerticalPixel, result.vertical);
+	private void countHorizontalLines(int atCol) {
+		count(atCol, image::getHeight, this::getPixelOnVerticalLine, result.horizontal);
 	}
 
 	/**

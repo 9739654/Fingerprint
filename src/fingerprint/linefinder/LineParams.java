@@ -9,6 +9,6 @@ public class LineParams {
 	}
 
 	public Unit unit;
-	public int[] horizontal;
-	public int[] vertical;
+	public int[] horizontalIndexes;
+	public int[] verticalIndexes;
 }

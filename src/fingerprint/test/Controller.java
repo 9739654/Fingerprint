@@ -1,4 +1,4 @@
-package fingerprint;
+package fingerprint.test;
 
 import fingerprint.linefinder.LineFinder;
 import fingerprint.linefinder.LineParams;
@@ -43,13 +43,14 @@ public class Controller {
 	FileChooser.ExtensionFilter extensionFilter;
 	LineFinder lineFinder;
 	LineParams lineParams;
-    List<Fingerprint> fingerprints = new ArrayList<>();
+    List<FingerprintData> fingerprints = new ArrayList<>();
 
     {
 		lineFinder = new LineFinder();
 		lineParams = new LineParams();
-		lineParams.horizontal = new int[] {100, 200, 300};
-		lineParams.vertical = lineParams.horizontal;
+		lineParams.horizontalIndexes = new int[] {100, 200, 300};
+		lineParams.verticalIndexes = lineParams.horizontalIndexes;
+		lineParams.unit = LineParams.Unit.PIXEL;
         readData();
 	}
 
@@ -62,7 +63,7 @@ public class Controller {
             while ((currentLine = reader.readLine()) != null) {
                 char firstLetter = currentLine.charAt(0);
                 if(firstLetter == '#') {
-                    Fingerprint newFingerprint = new Fingerprint();
+                    FingerprintData newFingerprint = new FingerprintData();
                     fingerprints.add(newFingerprint);
                     String name = currentLine.substring(1, currentLine.length());
                     newFingerprint.setName(name);
@@ -91,7 +92,7 @@ public class Controller {
         }
 
         //wypisanie danych
-        for (Fingerprint fingerprint : fingerprints) {
+        for (FingerprintData fingerprint : fingerprints) {
             System.out.println(fingerprint.getName());
             for (int i = 0; i < fingerprint.getHorizontalData().length; i++) {
                 System.out.println(fingerprint.getHorizontalData(i));

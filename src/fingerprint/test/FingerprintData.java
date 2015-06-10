@@ -1,9 +1,9 @@
-package fingerprint;
+package fingerprint.test;
 
 /**
  * Created by Sebastian on 2015-06-10.
  */
-public class Fingerprint {
+public class FingerprintData {
     private String name;
     private int[] verticalData = new int[5];
     private int[] horizontalData = new int[5];
