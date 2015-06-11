@@ -1,4 +1,4 @@
-#Osoba pierwsza
+#OsobaPierwsza
 V0 197
 V1 177
 V2 181
@@ -9,6 +9,39 @@ H1 181
 H2 159
 H3 171
 H4 200
+#OsobaDruga
+V0 197
+V1 177
+V2 181
+V3 179
+V4 192
+H0 198
+H1 181
+H2 159
+H3 171
+H4 200
+#bogdan
+V0 197
+V1 177
+V2 181
+V3 179
+V4 192
+H0 198
+H1 181
+H2 159
+H3 171
+H4 200
+#seba
+V0 222
+V1 198
+V2 184
+V3 195
+V4 222
+H0 239
+H1 238
+H2 208
+H3 193
+H4 213
 #Elizabeth Martin
 V0 0
 V1 0
