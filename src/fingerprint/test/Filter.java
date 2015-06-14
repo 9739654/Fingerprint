@@ -92,7 +92,7 @@ class SearchFingerprint extends Filter {
 
 		System.out.println("Linie pionowe");
 		for (int i = 0; i < linePos.length; i++) {
-			System.out.println("Linaia pomocnicza " + i + " :" + linePos[i]);
+			System.out.println("Linaia pomocnicza " + i + ": " + linePos[i]);
 		}
 
 		//liczenie średniej wartości rgb dla lini pomocniczej
@@ -104,7 +104,7 @@ class SearchFingerprint extends Filter {
 			}
 			result = result / (endY - startY);
 			verticalData[i] = result;
-			System.out.println("Srednia wartosc RGB dla linia " + i + ": " + result);
+			System.out.println("Srednia wartosc RGB dla linii " + i + ": " + result);
 		}
 	}
 

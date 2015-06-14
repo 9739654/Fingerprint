@@ -22,14 +22,13 @@ public class LineResult {
 
 	@Override
 	public String toString() {
-		String result = "LineResult\n";
-		result += "horizontal:\n";
+		String result = "Horizontal:\n";
 		for (Map.Entry<Integer, Integer> entry : horizontalLines.entrySet()) {
-			result += "\tx=" + entry.getKey() + ": " + entry.getValue() + "\n";
+			result += "\tx = " + entry.getKey() + ":   " + entry.getValue() + "\n";
 		}
-		result += "vertical:\n";
+		result += "Vertical:\n";
 		for (Map.Entry<Integer, Integer> entry : verticalLines.entrySet()) {
-			result += "\ty=" + entry.getKey() + ": " + entry.getValue() + " \n";
+			result += "\ty = " + entry.getKey() + ":   " + entry.getValue() + " \n";
 		}
 		return result;
 	}

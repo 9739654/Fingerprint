@@ -17,6 +17,7 @@ import javax.imageio.ImageIO;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class Controller {
@@ -25,17 +26,17 @@ public class Controller {
 	@FXML
 	MenuItem mniFileOpen, mniFileExit;
 	@FXML
-	Button btnFilter1, btnApplyFilter, btnAcceptFilter, btnSaveFingerprint;
+	Button btnApplyFilter, btnAcceptFilter, btnSaveFingerprint, btnCheckLines;
 	@FXML
 	ImageView imgLeft, imgRight;
 	@FXML
-	Slider binarizeParam;
-	@FXML
 	ComboBox<Filter> filterChooser;
-	@FXML
-	Button btnCheckLines;
     @FXML
     TextField inpFingerprintName;
+    @FXML
+    TextArea resultsArea;
+    @FXML
+    Label resultsLabel;
 
 	LazyLoad<FileChooser> fileChooserSupplier = new LazyLoad().withSupplier(() -> new FileChooser());
 	//Image originalImage;
@@ -70,7 +71,7 @@ public class Controller {
                     int i = 0;
                     String data;
 
-                    while(i++ < 10 && (data = reader.readLine()) != null) {
+                    while(i++ < 6 && (data = reader.readLine()) != null) {
                         char symbol = data.charAt(0);
                         char cIndex = data.charAt(1);
                         int index = Character.getNumericValue(cIndex);
@@ -93,12 +94,12 @@ public class Controller {
 
         //wypisanie danych
         for (FingerprintData fingerprint : fingerprints) {
-            System.out.println(fingerprint.getName());
+            System.out.println("#" + fingerprint.getName());
             for (int i = 0; i < fingerprint.getHorizontalData().length; i++) {
-                System.out.println(fingerprint.getHorizontalData(i));
+                System.out.println("H" + fingerprint.getHorizontalData(i));
             }
             for (int i = 0; i < fingerprint.getVerticalData().length; i++) {
-                System.out.println(fingerprint.getVerticalData(i));
+                System.out.println("V" + fingerprint.getVerticalData(i));
             }
         }
     }
@@ -137,19 +138,18 @@ public class Controller {
 	@FXML
 	void handleCheckLines() {
 		System.out.println("Image size: " + (int)imgLeft.getImage().getWidth() + "x" + (int)imgLeft.getImage().getHeight());
-		LineResult result = lineFinder
-				.image(imgLeft.getImage())
-				.params(lineParams)
-				.find()
-				.getResult();
+        LineResult result = lineFinder
+                .image(imgLeft.getImage())
+                .params(lineParams)
+                .find()
+                .getResult();
 
 		System.out.println(result);
+        resultsArea.setText(result.toString());
 	}
 
     @FXML
     void handleSaveFingerprint() throws FileNotFoundException, UnsupportedEncodingException {
-        //Najpierw należy wyszukać odcisk
-
         //zapisanie danych do pliku
 	    int[] verticalData = Filters
 			    .findByClass(SearchFingerprint.class)
@@ -158,7 +158,16 @@ public class Controller {
 	    int[] horizontalData = Filters
 			    .findByClass(SearchFingerprint.class)
 			    .get()
-			    .verticalData;
+			    .horizontalData;
+
+        LineResult result = lineFinder
+                .image(imgLeft.getImage())
+                .params(lineParams)
+                .find()
+                .getResult();
+
+        Map<Integer, Integer> horizontalLines = result.horizontalLines;
+        Map<Integer, Integer> verticalLines = result.verticalLines;
 
         String name = inpFingerprintName.getText();
         System.out.println(name);
@@ -167,17 +176,40 @@ public class Controller {
             PrintWriter writer = new PrintWriter(new BufferedWriter(new FileWriter("data.txt", true)));
             //PrintWriter writer = new PrintWriter("data.txt", "UTF-8");
             writer.println("#" + name);
-            for (int i = 0; i < verticalData.length; i++) {
-                writer.println("V" + i + " " + verticalData[i]);
-                System.out.println("V" + i + " " + verticalData[i]);
+
+            int i = 0;
+            for (Map.Entry<Integer, Integer> entry : horizontalLines.entrySet()) {
+
+                writer.println("H" + i + " " + entry.getValue());
+                System.out.println("H" + i + " " + entry.getValue());
+                i++;
+            }
+            i = 0;
+            for (Map.Entry<Integer, Integer> entry : verticalLines.entrySet()) {
+                writer.println("V" + i + " " + entry.getValue());
+                System.out.println("V" + i + " " + entry.getValue());
+                i++;
             }
 
-            for (int i = 0; i < horizontalData.length; i++) {
-                writer.println("H" + i + " " + horizontalData[i]);
-                System.out.println("H" + i + " " + horizontalData[i]);
-            }
+//  RGB
+//            for (int i = 0; i < verticalData.length; i++) {
+//                writer.println("V" + i + " " + verticalData[i]);
+//                System.out.println("V" + i + " " + verticalData[i]);
+//            }
+//
+//            for (int i = 0; i < horizontalData.length; i++) {
+//                writer.println("H" + i + " " + horizontalData[i]);
+//                System.out.println("H" + i + " " + horizontalData[i]);
+//            }
 
             writer.close();
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Zapisywanie odcisku");
+            alert.setHeaderText(null);
+            alert.setContentText("Zapisano odcisk w bazie danych!");
+
+            alert.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -231,14 +263,14 @@ public class Controller {
 	@FXML
 	private void enableButtons(boolean enable) {
 		boolean disable = !enable;
-		btnFilter1.setDisable(disable);
 		btnApplyFilter.setDisable(disable);
 		filterChooser.setDisable(disable);
-		binarizeParam.setDisable(disable);
 		btnAcceptFilter.setDisable(disable);
 		btnCheckLines.setDisable(disable);
         btnSaveFingerprint.setDisable(disable);
         inpFingerprintName.setDisable(disable);
+        resultsArea.setDisable(disable);
+        resultsLabel.setDisable(disable);
     }
 
 	@FXML

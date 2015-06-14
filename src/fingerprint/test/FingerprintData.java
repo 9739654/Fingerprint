@@ -5,8 +5,8 @@ package fingerprint.test;
  */
 public class FingerprintData {
     private String name;
-    private int[] verticalData = new int[5];
-    private int[] horizontalData = new int[5];
+    private int[] verticalData = new int[3];
+    private int[] horizontalData = new int[3];
 
 
     public String getName() {
