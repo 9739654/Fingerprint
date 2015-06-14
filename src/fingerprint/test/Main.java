@@ -8,12 +8,12 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-	public static final int WINDOW_WIDTH = 640;
-	public static final int WINDOW_HEIGHT = 480;
+	public static final int WINDOW_WIDTH = 1200;
+	public static final int WINDOW_HEIGHT = 680;
 
     @Override
     public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("main_view.fxml"));
+        Parent root = FXMLLoader.load(getClass().getResource("main_view2.fxml"));
         primaryStage.setTitle("Filtry odcisków palca");
         primaryStage.setScene(new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT));
         primaryStage.show();

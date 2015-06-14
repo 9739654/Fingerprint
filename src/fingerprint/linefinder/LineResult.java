@@ -6,29 +6,29 @@ import java.util.TreeMap;
 public class LineResult {
 
 	/**
-	 * Maps line index to line count. The key is x index of line. The value is number of horizontal lines found at this x index
+	 * Maps line index to line count. The key is x index of line. The value is number of horizontalLines lines found at this x index
 	 */
-	public final Map<Integer, Integer> horizontal;
+	public final Map<Integer, Integer> horizontalLines;
 
 	/**
-	 * Maps line index to line count. The key is y index of line. The value is number of lines vertical found at this y index
+	 * Maps line index to line count. The key is y index of line. The value is number of lines verticalLines found at this y index
 	 */
-	public final Map<Integer, Integer> vertical;
+	public final Map<Integer, Integer> verticalLines;
 
 	{
-		horizontal = new TreeMap<>();
-		vertical = new TreeMap<>();
+		horizontalLines = new TreeMap<>();
+		verticalLines = new TreeMap<>();
 	}
 
 	@Override
 	public String toString() {
-		String result = "LineResult\nhorizontal:\n";
-		for (Map.Entry<Integer, Integer> entry : horizontal.entrySet()) {
-			result += "\tx=" + entry.getKey() + ": " + entry.getValue() + "\n";
+		String result = "Horizontal:\n";
+		for (Map.Entry<Integer, Integer> entry : horizontalLines.entrySet()) {
+			result += "\tx = " + entry.getKey() + ":   " + entry.getValue() + "\n";
 		}
-		result += "vertical:\n";
-		for (Map.Entry<Integer, Integer> entry : vertical.entrySet()) {
-			result += "\ty=" + entry.getKey() + ": " + entry.getValue() + " \n";
+		result += "Vertical:\n";
+		for (Map.Entry<Integer, Integer> entry : verticalLines.entrySet()) {
+			result += "\ty = " + entry.getKey() + ":   " + entry.getValue() + " \n";
 		}
 		return result;
 	}

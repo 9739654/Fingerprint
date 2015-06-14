@@ -9,6 +9,14 @@ public class LineParams {
 	}
 
 	public Unit unit;
+
+	/**
+	 * Indexes at which horizontal lines should be found
+	 */
 	public int[] horizontalIndexes;
+
+	/**
+	 * Indexes at which vertical lines should be found
+	 */
 	public int[] verticalIndexes;
 }

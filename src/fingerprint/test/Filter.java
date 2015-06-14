@@ -3,10 +3,7 @@ package fingerprint.test;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.WritableImage;
 
-import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.util.function.BiConsumer;
 
@@ -16,6 +13,8 @@ class SearchFingerprint extends Filter {
 	}
 
 	int color, startX, startY, endX, endY;
+	int[] verticalData = new int[5];
+	int[] horizontalData = new int[5];
 
 	@Override
 	public Filter filter() {
@@ -60,14 +59,14 @@ class SearchFingerprint extends Filter {
 		horizontalRGBAverage(startX, endX, startY, endY);
 
 		// crop
-		source = source.getSubimage(startX, startY, endX - startX, endY - startY);
+		source = source.getSubimage(startX, startY, endX - startX + 1, endY - startY + 1);
 
 		dest = null;
 
 		return this;
 	}
 
-	// Draws horizontal line && verticalIndexes line
+	// Draws horizontalLines line && verticalIndexes line
 	private void drawFrame() {
 		for (int col = 0; col < source.getWidth(); col++) {
 			for (int row = 0; row < source.getHeight(); row++) {
@@ -93,7 +92,7 @@ class SearchFingerprint extends Filter {
 
 		System.out.println("Linie pionowe");
 		for (int i = 0; i < linePos.length; i++) {
-			System.out.println("Linaia pomocnicza " + i + " :" + linePos[i]);
+			System.out.println("Linaia pomocnicza " + i + ": " + linePos[i]);
 		}
 
 		//liczenie średniej wartości rgb dla lini pomocniczej
@@ -105,7 +104,7 @@ class SearchFingerprint extends Filter {
 			}
 			result = result / (endY - startY);
 			verticalData[i] = result;
-			System.out.println("Srednia wartosc RGB dla linia " + i + ": " + result);
+			System.out.println("Srednia wartosc RGB dla linii " + i + ": " + result);
 		}
 	}
 
@@ -522,8 +521,8 @@ class CustomFilter extends Filter {
 	@Override
 	public Filter filter() {
 
-		Gauss3x3 gs = (Gauss3x3) Filters.getByClass(Gauss3x3.class).get();
-		VerticalPrewitt vp = ((VerticalPrewitt) Filters.getByClass(VerticalPrewitt.class).get());
+		Gauss3x3 gs = (Gauss3x3) Filters.findByClass(Gauss3x3.class).get();
+		VerticalPrewitt vp = ((VerticalPrewitt) Filters.findByClass(VerticalPrewitt.class).get());
 
 		gs.source = source;
 		gs.filter();
@@ -550,9 +549,6 @@ public abstract class Filter {
 
 	protected BufferedImage source;
 	protected BufferedImage dest;
-
-	int[] verticalData = new int[5];
-	int[] horizontalData = new int[5];
 
 	int[][] filter;
 	int totalFilterWeight;
