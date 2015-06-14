@@ -67,7 +67,7 @@ class SearchFingerprint extends Filter {
 		return this;
 	}
 
-	// Draws horizontal line && verticalIndexes line
+	// Draws horizontalLines line && verticalIndexes line
 	private void drawFrame() {
 		for (int col = 0; col < source.getWidth(); col++) {
 			for (int row = 0; row < source.getHeight(); row++) {

@@ -48,9 +48,9 @@ public class Controller {
     {
 		lineFinder = new LineFinder();
 		lineParams = new LineParams();
-		lineParams.horizontalIndexes = new int[] {100, 200, 300};
+		lineParams.horizontalIndexes = new int[] {33, 50, 67};
 		lineParams.verticalIndexes = lineParams.horizontalIndexes;
-		lineParams.unit = LineParams.Unit.PIXEL;
+		lineParams.unit = LineParams.Unit.PERCENTAGE;
         readData();
 	}
 
@@ -136,6 +136,7 @@ public class Controller {
 
 	@FXML
 	void handleCheckLines() {
+		System.out.println("Image size: " + (int)imgLeft.getImage().getWidth() + "x" + (int)imgLeft.getImage().getHeight());
 		LineResult result = lineFinder
 				.image(imgLeft.getImage())
 				.params(lineParams)

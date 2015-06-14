@@ -4,10 +4,18 @@ import fingerprint.trend.Trend;
 import javafx.scene.image.Image;
 
 import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class LineFinder {
 	private static final int queueSize = 5;
+	private static final int beginIndex = queueSize;
+	private static Function<Integer, Double> rgbFunction;
+
+	static {
+		rgbFunction = LineFinder::rgbToAvarage;
+	}
 
 	private Image image;
 	private LineParams params;
@@ -17,46 +25,85 @@ public class LineFinder {
 
 	public LineFinder image(Image source) {
 		this.image = source;
+		checkParams();
 		return this;
 	}
 
 	public LineFinder params(LineParams params) {
 		this.params = params;
+		checkParams();
 		return this;
+	}
+
+	private void checkParams() {
+		if (params != null && image != null) {
+			for (int horizontalIndex : params.horizontalIndexes) {
+				if (horizontalIndex >= image.getWidth()) {
+					System.err.println("Horizontal index too high");
+				}
+			}
+			for (int verticalIndex : params.verticalIndexes) {
+				if (verticalIndex >= image.getHeight()) {
+					System.err.println("Vertical index too high");
+				}
+			}
+		}
 	}
 
 	public LineFinder find() {
 		result = new LineResult();
+		List<Integer> horizontalIndexes = null;
+		List<Integer> verticalIndexes = null;
 		switch (params.unit) {
 			case PERCENTAGE:
+				horizontalIndexes = new ArrayList<>();
+				verticalIndexes = new ArrayList<>();
 				for (int xIndex : params.horizontalIndexes) {
-					int where = (int) (xIndex * image.getWidth() / 100.0);
-					countHorizontalLines(where);
+					int where = (int) (xIndex / 100.0 * image.getWidth());
+					horizontalIndexes.add(where);
 				}
 				for (int yIndex : params.verticalIndexes) {
-					int where = (int) (yIndex * image.getHeight() / 100.0);
-					countVerticalLines(where);
+					int where = (int) (yIndex / 100.0 * image.getHeight());
+					verticalIndexes.add(where);
 				}
 				break;
 			case PIXEL:
 				for (int xIndex : params.horizontalIndexes) {
-					countHorizontalLines(xIndex);
+					horizontalIndexes.add(xIndex);
 				}
 				for (int yIndex : params.verticalIndexes) {
-					countVerticalLines(yIndex);
+					verticalIndexes.add(yIndex);
 				}
 				break;
 		}
+		horizontalIndexes.forEach(this::countHorizontalLines);
+		verticalIndexes.forEach(this::countVerticalLines);
 		last.clear();
 		return this;
 	}
 
-	private int getPixelOnHorizontalLine(Image image, int lineYIndex, int pixelXIndex) {
-		return image.getPixelReader().getArgb(pixelXIndex, lineYIndex);
+	/**
+	 * Gets pixel value
+	 * @param lineIndex y coordinate of pixel
+	 * @param pixelIndex x coordinate of pixel
+	 * @return
+	 */
+	private int getPixelOnHorizontalLine(int lineIndex, int pixelIndex) {
+		return image
+				.getPixelReader()
+				.getArgb(pixelIndex, lineIndex);
 	}
 
-	private int getPixelOnVerticalLine(Image image, int lineXIndex, int pixelYIndex) {
-		return image.getPixelReader().getArgb(lineXIndex, pixelYIndex);
+	/**
+	 * Gets pixel value
+	 * @param lineIndex x coordinate of pixel
+	 * @param pixelIndex y coordinate of pixel
+	 * @return
+	 */
+	private int getPixelOnVerticalLine(int lineIndex, int pixelIndex) {
+		return image
+				.getPixelReader()
+				.getArgb(lineIndex, pixelIndex);
 	}
 
 	/**
@@ -64,7 +111,7 @@ public class LineFinder {
 	 * @param atRow
 	 */
 	private void countVerticalLines(int atRow) {
-		count(atRow, image::getWidth, this::getPixelOnHorizontalLine, result.vertical);
+		count(atRow, image::getWidth, this::getPixelOnHorizontalLine, result.verticalLines);
 	}
 
 	/**
@@ -72,26 +119,26 @@ public class LineFinder {
 	 * @param atCol
 	 */
 	private void countHorizontalLines(int atCol) {
-		count(atCol, image::getHeight, this::getPixelOnVerticalLine, result.horizontal);
+		count(atCol, image::getHeight, this::getPixelOnVerticalLine, result.horizontalLines);
 	}
 
 	/**
 	 *
-	 * @param index index of row/col
-	 * @param lengthFunc function that return row/col length
+	 * @param lineIndex lineIndex of row/col
+	 * @param lineLengthFunc function that return row/col length
 	 * @param results
 	 */
 	private void count(
-			int index,
-			Supplier<Double> lengthFunc,
-			TriFunction<Image, Integer, Integer, Integer> valueGetter,
+			int lineIndex,
+			Supplier<Double> lineLengthFunc,
+			BiFunction<Integer, Integer, Integer> pixelGetter,
 			Map<Integer, Integer> results) {
 		int found = 0;
-		int length = (int) (double) lengthFunc.get();
-		fillQueue(index);
+		int lineLength = (int) (double) lineLengthFunc.get();
+		initQueue(lineIndex, pixelGetter);
 		Trend lastTrend = Trend.CONSTANT;
-		for (int pixel = queueSize; pixel<length; pixel++) {
-			int value = valueGetter.accept(image, index, pixel);
+		for (int pixel = beginIndex; pixel<lineLength; pixel++) {
+			int value = pixelGetter.apply(lineIndex, pixel);
 			feedQueue(value);
 			Trend trend = Trend.of(last);
 			if (lastTrend.maximum(trend)) {
@@ -99,20 +146,19 @@ public class LineFinder {
 			}
 			lastTrend = trend;
 		}
-		results.put(index, found);
+		results.put(lineIndex, found);
 		last.clear();
 	}
 
 	/**
 	 * Inserts first elements into the queue
-	 * @param row
+	 * @param line
 	 */
-	private void fillQueue(int row) {
+	private void initQueue(int line, BiFunction<Integer, Integer, Integer> pixelGetter) {
 		for (int pixel = 0; pixel < queueSize; pixel++) {
-			int value = image
-					.getPixelReader()
-					.getArgb(row, pixel);
-			feedQueue(value);
+			int rgb = pixelGetter.apply(line, pixel);
+			double result = rgbFunction.apply(rgb);
+			feedQueue(result);
 		}
 	}
 
@@ -125,6 +171,37 @@ public class LineFinder {
 		if (last.size() > queueSize) {
 			last.remove(0);
 		}
+	}
+
+	/**
+	 * Calculates the avarage of RGB
+	 * @param rgb
+	 * @return 1/3 * (r + g + b)
+	 */
+	public static final double rgbToAvarage(int rgb) {
+		int r, g, b;
+		r = 0xFF & (rgb >> 16);
+		g = 0xFF & (rgb >> 8);
+		b = 0xFF & (rgb >> 0);
+		double avarage;
+		avarage = (r + g + b) * 0.333333333333333333333;
+		return avarage;
+	}
+
+	/**
+	 * Calculates V from HSV model given RGB values
+	 * @param rgb
+	 * @return Value (HSV model) in range <0, 1>
+	 */
+	public static final double rgbToValue(int rgb) {
+		int r,g,b;
+		r = 0xFF * (rgb >> 16);
+		g = 0xFF * (rgb >> 8);
+		b = 0xFF * (rgb >> 0);
+		double value;
+		value = Math.max(Math.max(r, g), b);
+		value = value / 255.0 * 100.0;
+		return value;
 	}
 
 	public LineResult getResult() {
