@@ -7,6 +7,9 @@ public class FingerprintData {
     private String name;
     private int[] verticalData = new int[3];
     private int[] horizontalData = new int[3];
+    private double horizontalAverage = 0;
+    private double verticalAverage = 0;
+    private double average = 0;
 
 
     public String getName() {
@@ -47,5 +50,48 @@ public class FingerprintData {
 
     public void setHorizontalData(int index, int value) {
         this.horizontalData[index] = value;
+    }
+
+    public double getHorizontalAverage() {
+        return horizontalAverage;
+    }
+
+    public void setHorizontalAverage(double horizontalAverage) {
+        this.horizontalAverage = horizontalAverage;
+    }
+
+    public double getVerticalAverage() {
+        return verticalAverage;
+    }
+
+    public void setVerticalAverage(double verticalAverage) {
+        this.verticalAverage = verticalAverage;
+    }
+
+    public void calcutateVerticalAverage() {
+        int average = 0;
+        for (int i = 0; i < verticalData.length; i++){
+            average += verticalData[i];
+        }
+        this.verticalAverage = average/3;
+    }
+    public void calcutateHorizontalAverage() {
+        int average = 0;
+        for (int i = 0; i < horizontalData.length; i++){
+            average +=  horizontalData[i];
+        }
+        this.horizontalAverage = average/3;
+    }
+
+    public double getAverage() {
+        return average;
+    }
+
+    public void setAverage(double average) {
+        this.average = average;
+    }
+
+    public void calculateAverage() {
+        average = (horizontalAverage + verticalAverage) / 2;
     }
 }

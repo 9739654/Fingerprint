@@ -26,7 +26,7 @@ public class Controller {
 	@FXML
 	MenuItem mniFileOpen, mniFileExit;
 	@FXML
-	Button btnApplyFilter, btnAcceptFilter, btnSaveFingerprint, btnCheckLines;
+	Button btnApplyFilter, btnAcceptFilter, btnSaveFingerprint, btnCheckLines, btnFind;
 	@FXML
 	ImageView imgLeft, imgRight;
 	@FXML
@@ -39,12 +39,15 @@ public class Controller {
     Label resultsLabel;
 
 	LazyLoad<FileChooser> fileChooserSupplier = new LazyLoad().withSupplier(() -> new FileChooser());
-	//Image originalImage;
 	Filters filters = Filters.getFilters();
 	FileChooser.ExtensionFilter extensionFilter;
 	LineFinder lineFinder;
 	LineParams lineParams;
     List<FingerprintData> fingerprints = new ArrayList<>();
+    List<FingerprintData> compareData = new ArrayList<>();
+
+    Map<Integer, Integer> horizontalLines = null;
+    Map<Integer, Integer> verticalLines = null;
 
     {
 		lineFinder = new LineFinder();
@@ -104,7 +107,6 @@ public class Controller {
         }
     }
 
-
 	@FXML
 	void initialize() {
 		enableButtons(false);
@@ -113,15 +115,10 @@ public class Controller {
 		}
 		filterChooser.setValue(filters.get(0));
 		extensionFilter = new FileChooser.ExtensionFilter("Obrazki", ".jpg", ".jpeg", ".bmp", ".png");
-
 	}
 
 	@FXML
-	void handleBinarize(ActionEvent event) {
-	}
-
-	@FXML
-	void handleApplyFilter(ActionEvent event) {
+	void handleApplyFilter() {
 		filterChooser
 				.getValue()
 				.withImage(imgLeft.getImage())
@@ -129,20 +126,27 @@ public class Controller {
 				.setImage(imgRight);
 	}
 
-	@FXML
-	void handleAcceptFilter() {
-		imgLeft.setImage(imgRight.getImage());
+    @FXML
+    void handleAcceptFilter() {
+        imgLeft.setImage(imgRight.getImage());
         imgRight.setImage(null);
-	}
+    }
 
 	@FXML
 	void handleCheckLines() {
+        //TODO: zrobić aby użyło filtru szukania odcisku nawet jeżeli jest inny wybrany
+        handleApplyFilter();
+        handleAcceptFilter();
+
 		System.out.println("Image size: " + (int)imgLeft.getImage().getWidth() + "x" + (int)imgLeft.getImage().getHeight());
         LineResult result = lineFinder
                 .image(imgLeft.getImage())
                 .params(lineParams)
                 .find()
                 .getResult();
+
+        horizontalLines = result.horizontalLines;
+        verticalLines = result.verticalLines;
 
 		System.out.println(result);
         resultsArea.setText(result.toString());
@@ -151,23 +155,18 @@ public class Controller {
     @FXML
     void handleSaveFingerprint() throws FileNotFoundException, UnsupportedEncodingException {
         //zapisanie danych do pliku
-	    int[] verticalData = Filters
-			    .findByClass(SearchFingerprint.class)
-			    .get()
-			    .verticalData;
-	    int[] horizontalData = Filters
-			    .findByClass(SearchFingerprint.class)
-			    .get()
-			    .horizontalData;
 
-        LineResult result = lineFinder
-                .image(imgLeft.getImage())
-                .params(lineParams)
-                .find()
-                .getResult();
+//  RGB
+//	    int[] verticalData = Filters
+//			    .findByClass(SearchFingerprint.class)
+//			    .get()
+//			    .verticalData;
+//	    int[] horizontalData = Filters
+//			    .findByClass(SearchFingerprint.class)
+//			    .get()
+//			    .horizontalData;
 
-        Map<Integer, Integer> horizontalLines = result.horizontalLines;
-        Map<Integer, Integer> verticalLines = result.verticalLines;
+        handleCheckLines();
 
         String name = inpFingerprintName.getText();
         System.out.println(name);
@@ -179,7 +178,6 @@ public class Controller {
 
             int i = 0;
             for (Map.Entry<Integer, Integer> entry : horizontalLines.entrySet()) {
-
                 writer.println("H" + i + " " + entry.getValue());
                 System.out.println("H" + i + " " + entry.getValue());
                 i++;
@@ -190,7 +188,6 @@ public class Controller {
                 System.out.println("V" + i + " " + entry.getValue());
                 i++;
             }
-
 //  RGB
 //            for (int i = 0; i < verticalData.length; i++) {
 //                writer.println("V" + i + " " + verticalData[i]);
@@ -208,13 +205,84 @@ public class Controller {
             alert.setTitle("Zapisywanie odcisku");
             alert.setHeaderText(null);
             alert.setContentText("Zapisano odcisk w bazie danych!");
-
             alert.showAndWait();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        fingerprints.removeAll(fingerprints);
+        readData();
     }
+
+    @FXML
+    void handleFindFigerprint(ActionEvent actionEvent) {
+        handleCheckLines();
+
+        System.out.println("Wyszukiwanie odcisku w bazie danych");
+        int minErrorIndex = 0;
+        double minAverage = 1000;
+
+        //Liczenie błędu
+        System.out.println("BŁAD POMIAROWY:");
+
+        int currentFingerprint = 0;
+        for (FingerprintData fingerprint : fingerprints) {
+            String name = fingerprint.getName();
+            int value;
+            FingerprintData tmp = new FingerprintData();
+
+            tmp.setName(name);
+            System.out.println("#" + name);
+            int i = 0;
+            for (Map.Entry<Integer, Integer> entry : horizontalLines.entrySet()) {
+                value = Math.abs(fingerprint.getHorizontalData(i) - entry.getValue());
+                tmp.setHorizontalData(i, value);
+                System.out.print("H" + value + "   ");
+                i++;
+            }
+            tmp.calcutateHorizontalAverage();
+            System.out.print("srednia: " + tmp.getHorizontalAverage() + "\n");
+
+            i = 0;
+            for (Map.Entry<Integer, Integer> entry : verticalLines.entrySet()) {
+                value = Math.abs(fingerprint.getVerticalData(i) - entry.getValue());
+                tmp.setVerticalData(i, value);
+                System.out.print("V" + value + "   ");
+                i++;
+            }
+            tmp.calcutateVerticalAverage();
+            System.out.print("srednia: " + tmp.getVerticalAverage());
+
+            tmp.calculateAverage();
+            double average = tmp.getAverage();
+            System.out.println("\nSrednia: " + average);
+
+            compareData.add(tmp);
+
+            if(average < minAverage) {
+                minAverage = average;
+                minErrorIndex = currentFingerprint;
+            }
+
+            currentFingerprint++;
+        }
+
+        String foundName = fingerprints.get(minErrorIndex).getName();
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Wyszukiwanie odcisku w bazie danych");
+        alert.setHeaderText(null);
+        String msgText;
+        if(minAverage == 0.0) {
+            msgText = "Odcisk w 100% należy do " + foundName;
+        }
+        else {
+            msgText = "Odcisk najbardziej pasuje do " + foundName + "\nBłąd pomiarowy wynosi: " + minAverage;
+        }
+        alert.setContentText(msgText);
+        alert.showAndWait();
+    }
+
 
 	@FXML
 	void handleFileOpen(ActionEvent event) {
@@ -271,11 +339,11 @@ public class Controller {
         inpFingerprintName.setDisable(disable);
         resultsArea.setDisable(disable);
         resultsLabel.setDisable(disable);
+        btnFind.setDisable(disable);
     }
 
 	@FXML
 	void handleFileExit(ActionEvent event) {
 		Platform.exit();
 	}
-
 }

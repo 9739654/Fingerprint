@@ -59,7 +59,7 @@ class SearchFingerprint extends Filter {
 		horizontalRGBAverage(startX, endX, startY, endY);
 
 		// crop
-		source = source.getSubimage(startX, startY, endX - startX, endY - startY);
+		source = source.getSubimage(startX, startY, endX - startX + 1, endY - startY + 1);
 
 		dest = null;
 
