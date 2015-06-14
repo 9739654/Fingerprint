@@ -40,7 +40,7 @@ public final class Filters extends ArrayList<Filter> {
 		return filters;
 	}
 
-	public static Optional<Filter> getByName(String name) {
+	public static Optional<Filter> findByName(String name) {
 		for (Filter f : filters) {
 			if (f.toString().contains(name)) {
 				return Optional.of(f);
@@ -49,10 +49,16 @@ public final class Filters extends ArrayList<Filter> {
 		return Optional.empty();
 	}
 
-	public static Optional<Filter> getByClass(Class<?> x) {
+	public static <T extends Filter> Optional<T> findByClass(Class<T> x) {
 		for (Filter f : filters) {
 			if (f.getClass().equals(x)) {
-				return Optional.of(f);
+				T result;
+				try {
+					result = (T) f;
+				} catch (Exception e) {
+					result = null;
+				}
+				return Optional.of(result);
 			}
 		}
 		return Optional.empty();

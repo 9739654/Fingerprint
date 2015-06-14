@@ -151,8 +151,14 @@ public class Controller {
         //Najpierw należy wyszukać odcisk
 
         //zapisanie danych do pliku
-        int[] verticalData = filters.get(0).verticalData;
-        int[] horizontalData = filters.get(0).horizontalData;
+	    int[] verticalData = Filters
+			    .findByClass(SearchFingerprint.class)
+			    .get()
+			    .verticalData;
+	    int[] horizontalData = Filters
+			    .findByClass(SearchFingerprint.class)
+			    .get()
+			    .verticalData;
 
         String name = inpFingerprintName.getText();
         System.out.println(name);
