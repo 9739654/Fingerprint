@@ -426,6 +426,9 @@ public class Controller {
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setInitialDirectory(new File("/home/mati/Pobrane"));
 		File result = chooser.showDialog(root.getScene().getWindow());
+		if (result == null) {
+			return;
+		}
 		System.out.println(result);
 		try {
 			Files.walk(result.toPath())
