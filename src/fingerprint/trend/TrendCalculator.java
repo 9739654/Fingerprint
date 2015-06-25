@@ -14,7 +14,7 @@ public class TrendCalculator {
 	public TrendCalculator calculate() {
 		double sumX = 0, sumY = 0, a = 0, b, c = 0, d, slope;
 
-		double x = 0;
+		double x = 1;
 		for (double y : data) {
 			sumX += x;
 			sumY += y;
@@ -23,9 +23,9 @@ public class TrendCalculator {
 
 			x += 1;
 		}
-		a *= 3;
+		a *= data.length();
 		b = sumX * sumY;
-		c *= 3;
+		c *= data.length();
 		d = sumX * sumX;
 		slope = (a-b)/(c-d);
 		result = Trend.of(slope);
